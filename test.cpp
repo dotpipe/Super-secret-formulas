@@ -10,6 +10,8 @@
 #include <sstream>
 #include <bitset>
 #include <set>
+#include <chrono>
+#include <ctime>
 
 using namespace std;
 
@@ -33,7 +35,12 @@ long long int recIdle(vector<unsigned int> answers) {
 	return total;
 }
 int main(int c, char * argv[]) {
+    
+    auto start = std::chrono::system_clock::now();
+    // Some computation here
+    auto end = std::chrono::system_clock::now();
 
+              
     // we can leave the segments in averages per csv line
     ifstream ifo (argv[1], std::ios_base::in | std::ios_base::binary);
     ofstream ofo ("test.txt", std::ios_base::out | std::ios_base::binary);
@@ -48,46 +55,48 @@ int main(int c, char * argv[]) {
     ifos.str("");
     double file_len = gs.length();
     set<char> care = {};
+    vector<string> t {};
     while (gs.length() > 0) {
-        vector<long long int> t {};
-        vector<unsigned int> v = {};
-        if (gs.length() >= 6) {
-            string c = gs.substr(0,6);
-            for (int a : c) {
-                v.push_back(a);
-            }
+        t.push_back(gs.substr(0,8));
+        gs.erase((size_t)0, 8);
+    }
+    int i = 0;
+    string v = {};
+    bitset<8> d = 0;
+    while (t.size() > i) {
+        
+        long long int epiphany = 0;
+        for (int a : t[i]) {
+            epiphany <<= 8;
+            epiphany += a;
         }
-        else {
-            for (int a : gs) {
-                v.push_back(a);
-            }
-        }
-        gs = gs.substr(6,gs.length()-1);
-        t.push_back(recIdle(v));
-        for (long int x : t) {
-            long int n = x;
-            bitset<4> b = 0;
-            while (n/(8) > 0 && b.to_ulong() < 15) {
-                b = b.to_ulong() + 1;
-                n /= 8;
-            }
-            long a = n;
-            
-            bitset<4> c = 0;
-            while (a/(2) > 0 && c.to_ulong() < 7) {
-                c = c.to_ulong() + 1;
-                a /= 2;
-            }
-            
-            unsigned long e = a;
-            x = (b.to_ulong()) << 4;
-            c <<= 1 + (bool)(e);
-            x += (c.to_ulong());
-            char bear = x;
-            care.insert(bear);
-            ofo << bear;
+        long long int x = epiphany;
+        long long int n = x;
+        d = 0;
+        while (n/(2) > 0 && d.to_ulong() < 256) {
+            d = d.to_ulong() + 1;
+            n /= d.to_ulong() * 2;
+            x /= d.to_ulong() * 2;
         }
         
+        if (y < d.to_ulong()) {
+            y = d.to_ulong();
+            cout << y << " " << flush;
+        }
+        v.push_back((char)d.to_ulong());
+        i++;
+        if (v.size()%10000 == 0) {
+            ofo << v;
+            v.clear();
+        }
     }
-    cout << care.size();
+    
+    ofo << v;
+    v.clear();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+    std::cout << "finished computation at " << std::ctime(&end_time)
+              << "elapsed time: " << elapsed_seconds.count() << "s\n";
+    ////////////////ofo;
 }
