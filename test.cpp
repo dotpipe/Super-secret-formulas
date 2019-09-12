@@ -20,16 +20,18 @@ string epic(long long int epiphany);
 string epic(long long int epiphany) {
 
     string v = "";
-    // Inversion
+    // Deriving variable
     uint64_t fh = 0;
-    
+    // Derive
     fh = pow(2,64) - epiphany;
     //create string
     while (fh > 0) {
-        v.push_back((unsigned char)fh);
+        unsigned char f = fh%256;
+        v.push_back(f);
         fh >>= 8;
     }
-
+    v.push_back('A');
+    v.push_back('x');
     return v;
 }
 
@@ -81,18 +83,21 @@ int main(int c, char * argv[]) {
     set<int> n = {};
     // We're looping through each segment
     // Moving with t[i] (i++ at the bottom)
+    int j = 0;
+    uint64_t inv_total;
+    string m = "";
     while (t.size() > i) {
         // tv is the current segment
         string tv = t[i];
         // `j` tells us what generation of
         // inversion we're on. We turn them
         // all into a large 64 bit numbre (3 8bytes/64bits)
-        int j = 0;
         // epitome is the second generation of
         // the 3 generations that go into the 64 bits
         // Readers Note: we're using inversion
         //          x = pow(2,64) - epitome
         // for instance, macompplished is the 3rd
+        
         uint64_t epitome = 0, maccomplished = 0;
         while (tv.length() > 0) {
             z = 0;
@@ -107,7 +112,7 @@ int main(int c, char * argv[]) {
             // readies the task so much further.
             for (unsigned char a : tv) {
             // If we go over 64 bits, this will tell us
-                if ((epiphany << 8) + (int)a >= pow(2,63) + (int)a) {
+                if ((exciting << 8) + (int)a >= pow(2,63) + (int)a) {
                     cout << "?" << flush;
                 }
             // NOTE we are not inverting the byte itself
@@ -124,22 +129,15 @@ int main(int c, char * argv[]) {
             }
             
             // Shed the last 8 bytes
-            if (z < tv.length())
+            if (0 < tv.length())
                 tv = tv.substr(z,tv.length()-1);
-            else tv.clear();
-            
-            // move to epiphany
-            epiphany = exciting;
             
             // This is for outputting the file
             // to `ofo` (output file object)
-            string m = "";
-            
-            // generation counter
-            j++;
+            m = "";
             
             /// Invert the 3 generations
-            uint64_t inv_total = (pow(2,64) - epiphany);
+            inv_total = (pow(2,64) - exciting);
             inv_total <<= 6;
             inv_total += (pow(2,64) - epitome);
             inv_total <<= 6;
@@ -149,46 +147,51 @@ int main(int c, char * argv[]) {
             // blown the top off the 64 bit limit
             // then make the complete the compression
             // with epic.
-            if (j%3 == 0 && inv_total < pow(2,64)) {
+            if (j%3 == 2 && inv_total < pow(2,64)) {
                 m = epic(inv_total);
                 epiphany = 0;
                 maccomplished = 0;
                 exciting = 0;
-            }
-            // if I did go over the 64 mark,
-            // then there won't be 8 bits between
-            // each byte, So I get to know that.
-            else if (j%3 == 0) {
-                m = epic(epitome);
-                m += epic(exciting);
-                m += epic(maccomplished);
                 epitome = 0;
-                maccomplished = 0;
-                exciting = 0;
             }
+            //else 
+            //    cout << "?" << flush;
             // Generation prelate
             else {
+                epiphany = maccomplished;
                 maccomplished = epitome;
                 epitome = exciting;
-                exciting = 0;
             }
             // Write to file
             // & get output entropy inserts
-            if (m.length() > 0) {
+            // entropy is n. How many different
+            // chars are in the file.
+            if (j%3 == 2 && m != "Ax") {
                 for (int r : m)
                     n.insert(r);
                 ofo << m;
                 m.clear();
             }
+            
+            // generation counter
+            j++;
         }
         i++;
+    }
+    //output last of file
+    {
+        m = epic(inv_total);
+        for (int r : m)
+            n.insert(r);
+        ofo << m;
+        m.clear();
     }
     cout << n.size() << " " << flush;
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 
-    std::cout << "finished computation at " << std::ctime(&end_time)
+    std::cout << "\nfinished computation at " << std::ctime(&end_time)
               << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
 }
