@@ -4,6 +4,7 @@
         "xtree": "cpp",
         "vector": "cpp",
         "xstring": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "bitset": "cpp"
     }
 }

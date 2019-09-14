@@ -13,103 +13,67 @@
 using namespace std;
 
 string epic(uint64_t epiphany);
+uint64_t gcd (uint64_t, uint64_t);
+
+uint64_t gcd (uint64_t n1, uint64_t n2) {
+    return (n2 == 0) ? n1 : gcd (n2, n1 % n2);
+}
 
 string epic(uint64_t epiphany) {
 
     string v = "";
     // Deriving variable
     uint64_t fh = 0;
-    // Derive
-    fh = pow(2,63) * 1.9;
-    //fh = fh - epiphany;
-    bitset<64> fg = epiphany, fj = 0;
-    for (int i = 0 ; 0 < fg.to_ulong() ; i++) {
-        bitset<3> c = 0;
-        if (fg[0] == 1 && fg[1] == 1) {
-            fj = fj.to_ulong() + 3;
-            fj <<= 3;
-        }
-        if (fg[0] == 0 && fg[1] == 1) {
-            fj = fj.to_ulong() + 1;
-            fj <<= 2;
-        }
-        if (fg[0] == 1 && fg[1] == 0) {
-            fj = fj.to_ulong() + 1;
-            fj <<= 1;
-        }
-        if (fg[0] == 0 && fg[1] == 0) {
-            fj = fj.to_ulong() << 1;
-        }
-        fg >>= 2;
+    uint8_t x = 0;
+    
+    int b = gcd(15,epiphany);
+    
+    if (1 != b) {
+        int y = 0;
+        while (pow(2,y+1) <= epiphany) y++;
+        unsigned char f = ((64 - y) << 4) + b;
+        v.push_back(f);
+        return v;
     }
-    
-    fh = fj.to_ullong();
-    uint8_t x = fg.to_ulong();
-    
-    // Proof of concept for debugging
-    //if (fh > 256)
-    //    cout << fh << " " << flush;
-    //else
-    //    cout << "?";
-        
+    else {
+        // Derive
+        fh = pow(2,63) * 1.9;
+        //fh = fh - epiphany;
+        bitset<64> fg = epiphany, fj = 0;
+        for (int i = 0 ; 0 < fg.to_ulong() ; i++) {
+            bitset<3> c = 0;
+            if (fg[0] == 1 && fg[1] == 1) {
+                fj = fj.to_ulong() + 3;
+                fj <<= 3;
+            }
+            if (fg[0] == 0 && fg[1] == 1) {
+                fj = fj.to_ulong() + 2;
+                fj <<= 2;
+            }
+            if (fg[0] == 1 && fg[1] == 0) {
+                fj = fj.to_ulong() + 1;
+                fj <<= 1;
+            }
+            if (fg[0] == 0 && fg[1] == 0) {
+                fj = fj.to_ulong() << 1;
+            }
+            fg >>= 2;
+        }
+        fh = fj.to_ullong();
+        x = fg.to_ulong();
+    }
+
     while (fh > 0) {
         unsigned char f = fh%256;
         v.push_back(f);
         fh >>= 8;
     }
-    v.push_back('[');
-    //print first character to start off
-    while (x > 0) {
-        unsigned char f = x;
-        v.push_back(f);
-        x >>= 8;
-    }
     v.push_back(']');
     return v;
 }
 
-int main(int c, char * argv[]) {
-    
-    auto start = std::chrono::system_clock::now();
-    // Start Timer
-    std::time_t start_time = std::chrono::system_clock::to_time_t(start);
-    cout << std::ctime(&start_time) << flush;
-    
-    // Input/Output
-    ifstream ifo (argv[1], std::ios_base::in | std::ios_base::binary);
-    ofstream ofo ("test.txt", std::ios_base::out | std::ios_base::binary);
-    
-    // Create Buffer
-    stringstream ifos;
-    ifos << ifo.rdbuf();
-    string gs = ifos.str();
-    ifos.str("");
-    
-    // File length
-    double file_len = gs.length();
-    
-    // All of file in segments
-    vector<string> t {};
-    int y = 0;
-    //Segment size
-    int bytes = 10000;
-// Segments are made to make reading the file in
-// much easier, and faster. We're only concentrating
-// on the little of the file at once.
-    // Take to making segments
-    while ((y*bytes)+bytes < gs.length()) {
-        t.push_back(gs.substr((y*bytes),bytes));
-        if (t.size()%bytes == 0) {
-            cout << ". " << flush;
-        }
-        y++;
-    }
-    // Get last of the file
-    if (gs.length() > 0)
-        t.push_back(gs.substr(y*bytes, gs.length()-1));
-    gs.clear();
-    // File is loaded completely
-    cout << ".." << flush;
+void compress(vector<string> t, ofstream& ofo) {
+
     int i = 0, z = 0;
     
     // Entropy of Compress output
@@ -188,7 +152,6 @@ int main(int c, char * argv[]) {
         ofo << "RxIv";
         i++;
     }
-    //output last of file
     {
         m = epic(inv_total);
         for (int r : m)
@@ -196,6 +159,53 @@ int main(int c, char * argv[]) {
         ofo << m;
         m.clear();
     }
+    return;
+}
+
+int main(int c, char * argv[]) {
+    
+    auto start = std::chrono::system_clock::now();
+    // Start Timer
+    std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+    cout << std::ctime(&start_time) << flush;
+    
+    // Input/Output
+    ifstream ifo (argv[1], std::ios_base::in | std::ios_base::binary);
+    ofstream ofo ("test.txt", std::ios_base::out | std::ios_base::binary);
+    
+    // Create Buffer
+    stringstream ifos;
+    ifos << ifo.rdbuf();
+    string gs = ifos.str();
+    ifos.str("");
+    
+    // File length
+    double file_len = gs.length();
+    
+    // All of file in segments
+    vector<string> t {};
+    int y = 0;
+    //Segment size
+    int bytes = 10000;
+// Segments are made to make reading the file in
+// much easier, and faster. We're only concentrating
+// on the little of the file at once.
+    // Take to making segments
+    while ((y*bytes)+bytes < gs.length()) {
+        t.push_back(gs.substr((y*bytes),bytes));
+        if (t.size()%bytes == 0) {
+            cout << ". " << flush;
+        }
+        y++;
+    }
+    // Get last of the file
+    if (gs.length() > 0)
+        t.push_back(gs.substr(y*bytes, gs.length()-1));
+    gs.clear();
+    // File is loaded completely
+    cout << ".." << flush;
+    compress(t, ofo);
+    //output last of file
     cout << n.size() << " " << flush;
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
