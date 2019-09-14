@@ -5,6 +5,7 @@
         "vector": "cpp",
         "xstring": "cpp",
         "sstream": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "ostream": "cpp"
     }
 }

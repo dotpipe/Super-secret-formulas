@@ -14,7 +14,7 @@ using namespace std;
 
 string epic(uint64_t epiphany);
 uint64_t gcd (uint64_t, uint64_t);
-
+vector<string> compress(vector<string>);
 uint64_t gcd (uint64_t n1, uint64_t n2) {
     return (n2 == 0) ? n1 : gcd (n2, n1 % n2);
 }
@@ -72,17 +72,18 @@ string epic(uint64_t epiphany) {
     return v;
 }
 
-void compress(vector<string> t, ofstream& ofo) {
+vector<string> compress(vector<string> t) {
 
     int i = 0, z = 0;
     
-    // Entropy of Compress output
-    set<int> n = {};
     // We're looping through each segment
     // Moving with t[i] (i++ at the bottom)
     int j = 0;
     uint64_t inv_total;
     string m = "";
+    // This is to make the loop for
+    // continuous zipping; opt @cmdline
+    vector<string> s = {};
     while (t.size() > i) {
         // tv is the current segment
         string tv = t[i];
@@ -92,10 +93,10 @@ void compress(vector<string> t, ofstream& ofo) {
         // epitome is the second generation of
         // the 3 generations that go into the 64 bits
         // Readers Note: we're using inversion
-        //          x =  epitome
+        //          x = epitome
         // for instance, macompplished is the 3rd
         
-        uint64_t epiphany = 0, epitome = 0, maccomplished = 0;
+        uint64_t epiphany = 0;
         while (tv.length() > 0) {
             z = 0;
             
@@ -106,12 +107,10 @@ void compress(vector<string> t, ofstream& ofo) {
             // Let's go thur each character in a 8 byte
             // sequence and put them end to end. We'll
             // use this to compress with.
-            for (unsigned char a : tv) {
-                unsigned int h = a;
-                
+            for (unsigned int a : tv) {
                 // Obvious, I think
                 exciting <<= 8;
-                exciting += h;
+                exciting += a;
                 z++;
                 // Kick out every 8 bytes
                 if (z == 8)
@@ -122,47 +121,47 @@ void compress(vector<string> t, ofstream& ofo) {
             if (z < tv.length())
                 tv = tv.substr(z,tv.length()-1);
             else
-                tv.clear();
-            
-            // This is for outputting the file
-            // to `ofo` (output file object)
-            m = "";
-           
+                tv.clear();         
             /// Invert the 3 generations
             inv_total = pow(2,63) - exciting;
             
             int y = 0;
-            m = epic(inv_total);
+            m += epic(inv_total);
             if (m.length() == 0)
                 m = m + "JM";
             // Write to file
             // & get output entropy inserts
             // entropy is n. How many different
             // chars are in the file.
-            if (j%1 == 0) {
-                for (int r : m)
-                    n.insert(r);
-                ofo << m;
+            if (m.length() > 8000) {
+                s.push_back(m);
                 m.clear();
             }
-            // generation counter
-            j++;
         }
-        
-        ofo << "RxIv";
         i++;
     }
     {
-        m = epic(inv_total);
-        for (int r : m)
-            n.insert(r);
-        ofo << m;
+        m += epic(inv_total);
+        s.push_back(m);
         m.clear();
     }
-    return;
+    return s;
 }
 
 int main(int c, char * argv[]) {
+    
+    char * zip_count = argv[2];
+    long int zips = 0;
+    if (c < 3) {
+        cout << "* You may add a 2nd argument to zip multiple times";
+        cout << "\n* " << argv[0] << " <file_to_zip> <integer>";
+        cout << "\n* Default: 3\n";
+        zips = 3;
+    }
+    else
+    {
+        zips = strtol(argv[2],NULL,10);
+    }
     
     auto start = std::chrono::system_clock::now();
     // Start Timer
@@ -192,7 +191,7 @@ int main(int c, char * argv[]) {
 // on the little of the file at once.
     // Take to making segments
     while ((y*bytes)+bytes < gs.length()) {
-        t.push_back(gs.substr((y*bytes),bytes));
+        t.push_back(gs.substr((y*bytes)+bytes,bytes));
         if (t.size()%bytes == 0) {
             cout << ". " << flush;
         }
@@ -204,9 +203,25 @@ int main(int c, char * argv[]) {
     gs.clear();
     // File is loaded completely
     cout << ".." << flush;
-    compress(t, ofo);
+    while (zips > 0) {
+        t = compress(t);
+        string jj = "RxIv";
+        t.push_back(jj);
+        zips--;
+        long double w = 0;
+        for (string i : t)
+            w += i.length();
+        cout << round((w/file_len) * 100) << "% " << flush;
+    }
+    // Entropy of Compress output
+    set<int> n = {};
+    for (string c : t) {
+        for (int r : c)
+            n.insert(r);
+        ofo << c;
+    }
+    cout << n.size() << " ";
     //output last of file
-    cout << n.size() << " " << flush;
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
