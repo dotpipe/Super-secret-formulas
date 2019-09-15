@@ -10,13 +10,43 @@
 #include <chrono>
 #include <ctime>
 #include <bitset>
+#include <string.h>
+
 using namespace std;
 
-string epic(uint64_t epiphany);
+string epic(uint64_t);
 uint64_t gcd (uint64_t, uint64_t);
 vector<string> compress(vector<string>);
+string uncompress(uint32_t);
+string pop_off(uint64_t);
+
 uint64_t gcd (uint64_t n1, uint64_t n2) {
     return (n2 == 0) ? n1 : gcd (n2, n1 % n2);
+}
+
+string uncompress(uint32_t bytes) {
+	uint8_t inc = 0, metric = 0, g_c_d = 0;
+	inc = bytes%256;
+	metric = (bytes >> 8)%256;
+	g_c_d = (bytes >> 16)%256;
+	bitset<64> n_1 = g_c_d;
+	while (n_1.to_ulong() + g_c_d < metric)
+		n_1 = n_1.to_ulong() + g_c_d;
+	
+	while (--inc - 1 >= 0)
+		g_c_d++;
+
+	return pop_off(n_1.to_ulong());
+}
+
+string pop_off(uint64_t b) {
+	string y = "";
+	while (b > 0) {
+		unsigned char x = b%256;
+		y.push_back(x);
+		b >>= 8;
+	}
+	return y;
 }
 
 string epic(uint64_t epiphany) {
@@ -27,13 +57,33 @@ string epic(uint64_t epiphany) {
     uint8_t x = 0;
     
     int b = gcd(15,epiphany);
-    
+    while (b == 1 && x < 16) {
+        epiphany--;
+        
+        b = gcd(15,epiphany);
+        x++;
+    }
     if (1 != b) {
-        int y = 0;
-        while (pow(2,y+1) <= epiphany) y++;
-        unsigned char f = ((64 - y) << 4) + b;
-        v.push_back(f);
-        return v;
+        int y = 64;
+        //while (!(pow(2,y) < epiphany)) y--;
+        y = epiphany/b;
+        unsigned char f = 0;
+        if (16 > x && 256 / y) {
+            f = ((64-y) << 4) + x;
+            v.push_back(y);
+            v.push_back(x);
+            v.push_back(b);
+            return v;
+        }
+        else
+        {
+            cout << ":" << flush;
+            v.push_back('?');
+            v.push_back(y);
+            v.push_back(x);
+            v.push_back(b);
+            return v;
+        }
     }
     else {
         // Derive
@@ -60,7 +110,6 @@ string epic(uint64_t epiphany) {
             fg >>= 2;
         }
         fh = fj.to_ullong();
-        x = fg.to_ulong();
     }
 
     while (fh > 0) {
@@ -123,12 +172,14 @@ vector<string> compress(vector<string> t) {
             else
                 tv.clear();         
             /// Invert the 3 generations
-            inv_total = pow(2,63) - exciting;
+            inv_total = exciting; // pow(2,63)
             
             int y = 0;
-            m += epic(inv_total);
-            if (m.length() == 0)
-                m = m + "JM";
+            if (inv_total == 0)
+                m += "JJM";
+            else
+                m += epic(inv_total);
+                
             // Write to file
             // & get output entropy inserts
             // entropy is n. How many different
@@ -150,17 +201,17 @@ vector<string> compress(vector<string> t) {
 
 int main(int c, char * argv[]) {
     
-    char * zip_count = argv[2];
+    char * zip_count = argv[4];
     long int zips = 0;
-    if (c < 3) {
+    if (c < 4) {
         cout << "* You may add a 2nd argument to zip multiple times";
-        cout << "\n* " << argv[0] << " <file_to_zip> <integer>";
+        cout << "\n* " << argv[0] << " -(c|d) <file_to_zip> <integer>";
         cout << "\n* Default: 3\n";
         zips = 3;
     }
     else
     {
-        zips = strtol(argv[2],NULL,10);
+        zips = strtol(argv[4],NULL,10);
     }
     
     auto start = std::chrono::system_clock::now();
@@ -169,8 +220,8 @@ int main(int c, char * argv[]) {
     cout << std::ctime(&start_time) << flush;
     
     // Input/Output
-    ifstream ifo (argv[1], std::ios_base::in | std::ios_base::binary);
-    ofstream ofo ("test.txt", std::ios_base::out | std::ios_base::binary);
+    ifstream ifo (argv[2], std::ios_base::in | std::ios_base::binary);
+    ofstream ofo (argv[3], std::ios_base::out | std::ios_base::binary);
     
     // Create Buffer
     stringstream ifos;
@@ -181,46 +232,100 @@ int main(int c, char * argv[]) {
     // File length
     double file_len = gs.length();
     
-    // All of file in segments
-    vector<string> t {};
-    int y = 0;
-    //Segment size
-    int bytes = 10000;
-// Segments are made to make reading the file in
-// much easier, and faster. We're only concentrating
-// on the little of the file at once.
-    // Take to making segments
-    while ((y*bytes)+bytes < gs.length()) {
-        t.push_back(gs.substr((y*bytes)+bytes,bytes));
-        if (t.size()%bytes == 0) {
-            cout << ". " << flush;
+    if (0 == strcmp(argv[1], "-c")) {
+        // All of file in segments
+        vector<string> t {};
+        int y = 0;
+        //Segment size
+        int bytes = 10000;
+    // Segments are made to make reading the file in
+    // much easier, and faster. We're only concentrating
+    // on the little of the file at once.
+        // Take to making segments
+        while ((y*bytes)+bytes < gs.length()) {
+            t.push_back(gs.substr((y*bytes)+bytes,bytes));
+            if (t.size()%bytes == 0) {
+                cout << ". " << flush;
+            }
+            y++;
         }
-        y++;
+        // Get last of the file
+        if (gs.length() > 0)
+            t.push_back(gs.substr(y*bytes, gs.length()-1));
+        gs.clear();
+        // File is loaded completely
+        cout << ".." << flush;
+        while (zips > 0) {
+            t = compress(t);
+            zips--;
+            long double w = 0;
+            for (string i : t)
+                w += i.length();
+            cout << round((w/file_len) * 100) << "% " << flush;
+        }
+        
+        // Entropy of Compress output
+        set<string> n = {};
+        int i = 0;
+        for (string c : t) {
+            string tiptum = "";
+            for (int r : c) {
+                if (i > 0 && i%3 == 0) {
+                    n.insert(tiptum);
+                    tiptum.clear();
+                }
+                tiptum.push_back(r);
+                i++;
+            }
+            i = 0;
+            ofo << c;
+        }
+        cout << n.size() << " ";
     }
-    // Get last of the file
-    if (gs.length() > 0)
-        t.push_back(gs.substr(y*bytes, gs.length()-1));
-    gs.clear();
-    // File is loaded completely
-    cout << ".." << flush;
-    while (zips > 0) {
-        t = compress(t);
-        string jj = "RxIv";
-        t.push_back(jj);
-        zips--;
-        long double w = 0;
-        for (string i : t)
-            w += i.length();
-        cout << round((w/file_len) * 100) << "% " << flush;
+    else if (0 == strcmp(argv[1], "-d")) {
+        int bytes = 30000;
+        vector<string> t = {};
+        int y = 0;
+    // Segments are made to make reading the file in
+    // much easier, and faster. We're only concentrating
+    // on the little of the file at once.
+        // Take to making segments
+        while ((y*bytes)+bytes < gs.length()) {
+            t.push_back(gs.substr((y*bytes)+bytes,bytes));
+            if (t.size()%bytes == 0) {
+                cout << ". " << flush;
+            }
+            y++;
+        }
+        // Get last of the file
+        if (gs.length() > 0)
+            t.push_back(gs.substr(y*bytes, gs.length()-1));
+        gs.clear();
+        y = 0;
+        string g = "";
+        uint32_t JJM_spaces = ((int)('J') << 16) + ((int)('J') << 8) + (int)('M');
+        bitset<24> buckets = 0;
+        for (string j : t) {
+            for (int h : j) {
+                buckets <<= 8;
+                buckets = buckets.to_ulong() + h;
+                y++;
+                if (buckets.to_ulong() == JJM_spaces) {
+                    for (int i = 0 ; i < 8 ; i++)
+                        g += ' ';
+                    buckets = 0;
+                    continue;
+                }
+                if (buckets.to_ulong() > 0 && y%3 == 0) {
+                    g += uncompress(buckets.to_ulong());
+                    buckets = 0;
+                }
+            }
+            g += uncompress(buckets.to_ulong());
+            ofo << g;
+            g.clear();
+        }
     }
-    // Entropy of Compress output
-    set<int> n = {};
-    for (string c : t) {
-        for (int r : c)
-            n.insert(r);
-        ofo << c;
-    }
-    cout << n.size() << " ";
     //output last of file
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
