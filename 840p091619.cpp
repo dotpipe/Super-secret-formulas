@@ -16,12 +16,25 @@
 using namespace std;
 
 
-string epic(uint64_t, uint8_t);
-tuple<uint64_t, uint8_t, uint8_t> brf (uint64_t, uint8_t, uint8_t);
+string epic(uint8_t);
+tuple<long double, uint8_t, uint8_t> brf (long double, uint8_t, uint8_t);
 vector<string> compress(vector<string>);
-string uncompress(string);
+string uncompress(uint32_t);
 string pop_off(uint64_t);
 uint64_t gcd (uint64_t n1, uint64_t n2);
+
+// Best nth root finder (input, base, exponent)
+tuple<long double, uint8_t, uint8_t> brf (long double n1, uint8_t n2, uint8_t n3 = 1) {
+    tuple<long double, uint8_t, uint8_t> gf;
+    gf = make_tuple(n1, n2, n3);
+    if (pow(n2, n3) == n1)
+        return gf;
+    else if (pow(n2,n3) > n1)
+        return make_tuple(n1,++n2,1);
+    else if (n2%4 == 3 && n3 > 16)
+        return make_tuple(0,0,0);
+    return brf(n1, n2, ++n3);
+}
 
 // greatest common denominator
 // Just seeing if we're dealing with
@@ -34,8 +47,7 @@ uint64_t gcd (uint64_t n1, uint64_t n2) {
 // TODO: REDO
 string uncompress(string zip) {
 	uint8_t inc = zip[2], exponent = zip[1], base = zip[0];
-	bitset<64> n_1 = 0;
-	
+	bitset<24> n_1 = 0;
 	n_1 = pow(base, exponent) + inc;
 	return pop_off(n_1.to_ulong());
 }
@@ -44,42 +56,52 @@ string uncompress(string zip) {
 // from uncompress()
 string pop_off(uint64_t b) {
 	string y = "";
-	int i = 8;
-	while (i-- > 0) {
-	    uint8_t c = (b-1)%256;
-	    if (abs(c)%256 == 0) {
-	        y.push_back((char)255);
-        }
-	    else if (abs(c)%256 == 1) {
-	        y.push_back((char)0);
-        }
-        else {
-    		unsigned char x = abs(c)%256;
-	    	y.push_back(x);
-        }
+	int i = 0;
+	while (i++ < 8) {
+	    int a = (b%256) - 1;
+		unsigned char x = a;
+		y.push_back(x);
 		b >>= 8;
 	}
 	return y;
 }
 
 // make assertions and content
-string epic(uint64_t epiphany, uint8_t x) {
+string epic(uint64_t epiphany) {
 
     string v = "";
+    // Deriving variable
+    uint8_t f = 0;
+    uint8_t x = 0;
     
     tuple<long double, uint8_t, uint8_t> gce = make_tuple(0,0,0);
-
-    for (int i = 2; i < 8 ; i++) {
-        for (int j = 2 ; j < 16 ; j++) {
-            if (epiphany == pow(i,j)) {
+    uint64_t b = gcd(31, epiphany);
+    
+    while(b == 1) {
+        b = gcd(31, --epiphany);
+        x++;
+    }
+    while (x < pow(2,32)) {
+        for (int i = 3 ; i < 32 ; i++) {
+            gce = brf(epiphany,i,1);
+            if (get<0>(gce) > 0) {
                 v.push_back((char)get<1>(gce));
                 v.push_back((char)get<2>(gce));
                 v.push_back(x);
                 return v;
             }
         }
+        b = gcd(63, --epiphany);
+        x++;
+        while (b == 1) {
+            b = gcd(256, --epiphany);
+            x++;
+        }
     }
-    return v;
+    
+    cout << "Error: Invalid stream" << flush;
+    exit(0);
+
 }
 
 vector<string> compress(vector<string> t) {
@@ -89,7 +111,7 @@ vector<string> compress(vector<string> t) {
     // We're looping through each segment
     // Moving with t[i] (i++ at the bottom)
     int j = 0;
-    uint64_t inv_total = 0;
+    uint64_t inv_total;
     string m = "";
     // This is to make the loop for
     // continuous zipping; opt @cmdline argv[3]
@@ -97,23 +119,23 @@ vector<string> compress(vector<string> t) {
     while (t.size() > i) {
         // tv is the current segment
         string tv = t[i];
-    
-        // exciting is the 64 bit 8 byte 
-        // value of the sequences as they
-        // are read in to the compressor
-        uint64_t exciting = 0;
-        while (tv.length() >= 8) {
+        
+        uint64_t epiphany = 0;
+        while (tv.length() > 0) {
             z = 0;
             
+            // exciting is the 64 bit 8 byte 
+            // value of the sequences as they
+            // are read in to the compressor
+            uint64_t exciting = 0;
             
             // Let's go thru each char, sequencing 8 bytes
             // end to end. We'll
             // use this to compress with.
             for (unsigned int a : tv) {
                 // Obvious, I think
-                bitset<8> h = a;
                 exciting <<= 8;
-                exciting += (a-1)%256;
+                exciting += a + 1;
                 z++;
                 // 8 byte limit
                 if (z == 8)
@@ -123,31 +145,16 @@ vector<string> compress(vector<string> t) {
             // Shed the last ? bytes substr(?,->)
             if (z < tv.length())
                 tv = tv.substr(z,tv.length()-1);
+            else
+                tv.clear();
             
             inv_total = exciting;
             
-            int y = 0, z = 0;
+            int y = 0;
             if (inv_total == 0)
                 m += "JJM";
-            else {
-                int x = 0;
-                string n = "";
-                do {
-                    n.clear();
-                    if (y%16 == 0) {
-                        z++;
-                        --inv_total;
-                    }
-                    if (inv_total == pow(z, y)) {
-                        n.push_back(x);
-                        n.push_back(y);
-                        n.push_back(z);
-                    }
-                    x++;
-                    y++;
-                } while (n.length() != 3);
-                m += n;
-            }
+            else
+                m += epic(inv_total);
                 
             // Write to file
             // & get output entropy inserts
@@ -160,10 +167,11 @@ vector<string> compress(vector<string> t) {
         }
         i++;
     }
-    
-    string n = "";
-    s.push_back(m);
-    m.clear();
+    {
+        m += epic(inv_total);
+        s.push_back(m);
+        m.clear();
+    }
     return s;
 }
 
@@ -171,7 +179,7 @@ int main(int c, char * argv[]) {
     
     
     long int zips = 0;
-    if (c < 5) {
+    if (c < 4) {
         cout << "* You may add a 3rd argument to zip multiple times";
         cout << "\n* " << argv[0] << " -(c|d) <file_to_zip> <output> <integer>";
         cout << "\n* Defaulting to: 3\n";
@@ -205,26 +213,29 @@ int main(int c, char * argv[]) {
         vector<string> t {};
         int y = 0;
         //Segment size
-        int bytes = 48000;
+        int bytes = 16000;
     // Segments are made to make reading the file in
     // much easier, and faster. We're only concentrating
     // on the little of the file at once.
         // Take to making segments
-        while (bytes <= gs.length()) {
-            t.push_back(gs.substr(0,bytes));
-            gs = gs.substr(bytes, gs.length()-1);
+        while ((y*bytes)+bytes < gs.length()) {
+            t.push_back(gs.substr((y*bytes)+bytes,bytes));
+            if (t.size()%bytes == 0) {
+                cout << ". " << flush;
+            }
+            y++;
         }
         // Get last of the file
         if (gs.length() > 0)
-            t.push_back(gs.substr(0,gs.length()-1));
+            t.push_back(gs.substr(y*bytes, gs.length()-1));
         gs.clear();
         // File is loaded
         cout << ".." << flush;
-        long double w = 0;
         while (zips > 0) {
             // Use epic() to compress
             t = compress(t);
             zips--;
+            long double w = 0;
             for (string i : t)
                 w += i.length();
             cout << round((w/file_len) * 100) << "% " << flush;
@@ -237,7 +248,7 @@ int main(int c, char * argv[]) {
             string tiptum = "";
             for (int r : c) {
                 i++;
-                if (i > 0) {
+                if (i > 0) { // && i%3 == 0) {
                     n.insert(tiptum);
                     tiptum.clear();
                 }
@@ -249,40 +260,45 @@ int main(int c, char * argv[]) {
         cout << n.size() << " ";
     }
     else if (0 == strcmp(argv[1], "-d")) {
-        int bytes = 48000;
+        int bytes = 30000;
         vector<string> t = {};
         int y = 0;
     // Segments are made to make reading the file in
     // much easier, and faster. We're only concentrating
     // on the little of the file at once.
         // Take to making segments
-        while (bytes <= gs.length()) {
-            t.push_back(gs.substr(0,bytes));
+        while ((y*bytes)+bytes < gs.length()) {
+            t.push_back(gs.substr((y*bytes)+bytes,bytes));
             if (t.size()%bytes == 0) {
                 cout << ". " << flush;
             }
-            gs = gs.substr(bytes, gs.length()-1);
+            y++;
         }
         // Get last of the file
         if (gs.length() > 0)
-            t.push_back(gs.substr(0,gs.length()-1));
+            t.push_back(gs.substr(y*bytes, gs.length()-1));
         gs.clear();
+        y = 0;
         string g = "", JJM_spaces = "";
+        bitset<24> buckets = 0;
         for (string j : t) {
             for (int h : j) {
+                buckets <<= 8;
+                buckets = buckets.to_ulong() + h;
+                y++;
                 JJM_spaces.push_back((char)h);
                 if ("JJM" == JJM_spaces) {
                     for (int i = 0 ; i < 8 ; i++)
-                        ofo << (char)(0);
+                        ofo << ' ';
+                    buckets = 0;
                     JJM_spaces.clear();
                 }
                 else if (JJM_spaces.length() == 3) {
                     ofo << uncompress(JJM_spaces);
                     JJM_spaces.clear();
+                    
                 }
             }
-            ofo << JJM_spaces;
-            JJM_spaces.clear();
         }
     }
     //output last of file

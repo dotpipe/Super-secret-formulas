@@ -6,6 +6,8 @@
         "xstring": "cpp",
         "sstream": "cpp",
         "bitset": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "tuple": "cpp",
+        "cmath": "cpp"
     }
 }
