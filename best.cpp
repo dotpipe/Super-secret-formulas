@@ -15,86 +15,86 @@
 
 using namespace std;
 
-string epic(uint8_t);
-tuple<uint64_t, long double, long double> brf(uint64_t, long double);
+tuple<uint64_t, uint64_t, long double> brf(uint64_t, long double);
 vector<string> compress(vector<string>);
 string uncompress(uint32_t);
 string pop_off(uint64_t);
-uint64_t gcd(uint64_t n1, uint64_t n2);
+string sepFix(unsigned long long int epiphany);
 
 string sepFix(unsigned long long int epiphany)
 {
-    tuple<uint8_t, long double, long double> gce = make_tuple(0, 0, 0);
+    tuple<uint8_t, uint64_t, long double> gce = make_tuple(0, 0, 0);
     string v = "";
-    while (epiphany > 0)
+    //while (epiphany > 0)
     {
         gce = brf(epiphany, 2);
-        if (get<1>(gce) != 0)
-        {
-            v.push_back((char)get<1>(gce));
-            uint64_t f = (epiphany - get<0>(gce));
-            v.push_back((char)f%256);
-            f >>= 8;
-            v.push_back((char)f%256);
-            f >>= 8;
-            v.push_back((char)f%256);
-            f >>= 8;
-            if (f > 0) {
+        v.push_back((char)get<0>(gce));
+        double x = get<2>(gce)*10;
+        uint16_t y = round(x);
+        y >>= 8;
+        v.push_back((char)y%256);
+        cout << " " << get<2>(gce);
+        uint64_t f = (uint64_t)get<1>(gce);
+        if ((f) > 0) {
+            v.push_back('[');
+            while (f > 0) {
                 v.push_back((char)f%256);
+                f >>= 8;
             }
-            else
-                v.push_back(']');
-                
-
-            return v;
+            v.push_back(']');
         }
-        cout << "l" << flush;
-        epiphany--;
+        return v;
     }
 }
 // Best nth root finder (input, base, exponent)
-tuple<uint64_t, long double, long double> brf(uint64_t n1, long double n2 = 3)
+tuple<uint64_t, uint64_t, long double> brf(uint64_t n1, long double n2 = 3)
 {
-    double n3 = 0, nmrk = 0;
-    while (n2 >= 2)
+    long double n3 = 0, nmrk = 0;
+    while (n2 <= 64)
     {
-        uint64_t mk = 1, tptm = 1, mnk = 1, x = 3000;
-        for (n3 = 0; 256 < pow(n1,1.0/n3) ; n3+=0.015625, nmrk++) {
-            x = pow(n1,1.0/n3);
-            x = pow(x, n3);
+        long double mk = 0, tptm = 0, mnk = 0, x = 0, dad = 0;
+        for (n3 = 0; tptm != n1 || mnk > 6250 ; nmrk++) {
+            n3 += 0.015625;
+            mk += 0.0073125;
+            dad += 0.00390625;
+            mnk = pow(n1, 1.0/(mk+n3+dad));
+            tptm = pow((mnk), (mk+n3+dad));
         }
-        if (pow(n1,1.0/n3) < 256)
+        if (tptm - n1 == 0)
         {
-            x = pow(n1,1.0/n3);
-            uint64_t y = pow(x, n3);
-            //cout << y << " " << x << " " << nmrk << " " << n1 << " " << (n1-y) << endl << flush;
-            return make_tuple(nmrk, n1 - y, 0);
+            uint64_t y = (tptm);
+            return make_tuple(nmrk, 0, (mnk));
         }
-        else
-        {
-            n2++;
-            n3 = 0;
-        }
+        
     }
     return make_tuple(0, 0, 0);
-}
-
-// greatest common denominator
-// Just seeing if we're dealing with
-// prime number or not, we will decrement
-// each time we find it is, and repeat.
-uint64_t gcd(uint64_t n1, uint64_t n2)
-{
-    return (n2 == 0) ? n1 : gcd(n2, n1 % n2);
 }
 
 // TODO: REDO
 string uncompress(string zip)
 {
-    uint8_t inc = zip[2], exponent = zip[1], base = zip[0];
-    bitset<24> n_1 = 0;
-    n_1 = pow(base, exponent) + inc;
-    return pop_off(n_1.to_ulong());
+    uint64_t inc = 0, exponent = 0, base = 0;
+    long double n_1 = 0, n3 = 0, md = 0, sa = 0;
+    int f = zip[0];
+    while (f > 0) {
+        n3 += 0.015625;
+        md += 0.0073125;
+        sa += 0.00390625;
+        f--;
+    }
+    n_1 = 0;
+    base = zip[2];
+    base <<= (zip[1] << 8);
+    base /= 10;
+    base += 0.05;
+    if (zip.length() > 3 && zip[2] == '[' && zip[zip.length()-1] == ']') {
+        for (int i = 4 ; i < zip.length()-1 ; i++) {
+            inc <<= 8;
+            inc += zip[i];
+        }
+    }
+    n_1 = pow(base, (n3+md+sa)) + inc;
+    return pop_off(n_1);
 }
 
 // Split 64 bits, into 8 bytes
@@ -105,36 +105,12 @@ string pop_off(uint64_t b)
     int i = 0;
     while (i++ < 8)
     {
-        int a = (b % 256) - 1;
+        int a = (b % 256);
         unsigned char x = a;
         y.push_back(x);
         b >>= 8;
     }
     return y;
-}
-
-// make assertions and content
-string epic(uint64_t epiphany)
-{
-
-    string v = "";
-    // Deriving variable
-    uint8_t f = 0;
-    uint8_t x = 0;
-
-    tuple<uint8_t, long double, long double> gce = make_tuple(0, 0, 0);
-    uint64_t b = gcd(31, epiphany);
-
-    while (b == 1)
-    {
-        b = gcd(31, --epiphany);
-        x++;
-    }
-    uint64_t d = epiphany;
-    v = sepFix(d);
-    d = epiphany >> 32;
-    //v += sepFix(d);
-    return v;
 }
 
 vector<string> compress(vector<string> t)
@@ -191,7 +167,7 @@ vector<string> compress(vector<string> t)
             if (inv_total == 0)
                 m += "JJM";
             else
-                m += epic(inv_total);
+                m += sepFix(inv_total);
 
             // Write to file
             // & get output entropy inserts
@@ -205,19 +181,18 @@ vector<string> compress(vector<string> t)
         }
         i++;
     }
-    {
-        m += epic(inv_total);
-        s.push_back(m);
-        m.clear();
-    }
+    m += sepFix(inv_total);
+    s.push_back(m);
+    m.clear();
+    
     return s;
 }
 
-int main(int c, char *argv[])
+int main(int argc, char *argv[])
 {
 
     long int zips = 0;
-    if (c < 4)
+    if (argc < 5)
     {
         cout << "* You may add a 3rd argument to zip multiple times";
         cout << "\n* " << argv[0] << " -(c|d) <file_to_zip> <output> <integer>";
@@ -289,27 +264,27 @@ int main(int c, char *argv[])
         int i = 0;
         for (string c : t)
         {
-        /*
+        
             string tiptum = "";
             for (int r : c)
             {
                 i++;
-                if (i > 0)
-                { // && i%3 == 0) {
+                //if (i > 0)
+                { 
                     n.insert(tiptum);
                     tiptum.clear();
                 }
                 tiptum.push_back(r);
             }
-            */
-            //i = 0;
+            
+            i = 0;
             ofo << c;
         }
         cout << n.size() << " ";
     }
     else if (0 == strcmp(argv[1], "-d"))
     {
-        int bytes = 30000;
+        int bytes = file_len;
         vector<string> t = {};
         int y = 0;
         // Segments are made to make reading the file in
@@ -323,6 +298,8 @@ int main(int c, char *argv[])
             {
                 cout << ". " << flush;
             }
+            t.push_back(gs);
+            gs.clear();
             y++;
         }
         // Get last of the file
@@ -334,12 +311,12 @@ int main(int c, char *argv[])
         bitset<24> buckets = 0;
         for (string j : t)
         {
-            for (int h : j)
+            for (int h = 0 ; h < j.length() ; h++)
             {
                 buckets <<= 8;
-                buckets = buckets.to_ulong() + h;
+                buckets = buckets.to_ulong() + j[h];
                 y++;
-                JJM_spaces.push_back((char)h);
+                JJM_spaces.push_back((char)j[h]);
                 if ("JJM" == JJM_spaces)
                 {
                     for (int i = 0; i < 8; i++)
@@ -347,10 +324,20 @@ int main(int c, char *argv[])
                     buckets = 0;
                     JJM_spaces.clear();
                 }
-                else if (JJM_spaces.length() == 3)
+                else if (JJM_spaces.length() == 3 && j[h+1] != '[')
                 {
                     ofo << uncompress(JJM_spaces);
                     JJM_spaces.clear();
+                }
+                else if (JJM_spaces.length() == 3)
+                {
+                    for ( ; h < j.length() ; )
+                    {
+                        JJM_spaces.push_back(j[h]);
+                        h++;
+                        if (j[h] == ']')
+                            break;
+                    }   
                 }
             }
         }
