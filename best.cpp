@@ -15,85 +15,184 @@
 
 using namespace std;
 
-tuple<uint64_t, uint64_t, long double> brf(uint64_t, long double);
+tuple<uint64_t, string, long double> brf(uint64_t, long double);
 vector<string> compress(vector<string>);
 string uncompress(uint32_t);
 string pop_off(uint64_t);
 string sepFix(unsigned long long int epiphany);
+string stressTest(uint8_t nmrk, string zip, long double mnk);
 
+uint64_t end_file_len = 0;
+set<unsigned long long int> b = {};
 string sepFix(unsigned long long int epiphany)
 {
-    tuple<uint8_t, uint64_t, long double> gce = make_tuple(0, 0, 0);
+    tuple<uint8_t, string, long double> gce = make_tuple(0, "", 0);
     string v = "";
     //while (epiphany > 0)
     {
-        gce = brf(epiphany, 2);
-        v.push_back((char)get<0>(gce));
-        double x = get<2>(gce)*10;
-        uint16_t y = round(x);
-        y >>= 8;
-        v.push_back((char)y%256);
-        cout << " " << get<2>(gce);
-        uint64_t f = (uint64_t)get<1>(gce);
-        if ((f) > 0) {
-            v.push_back('[');
-            while (f > 0) {
-                v.push_back((char)f%256);
-                f >>= 8;
-            }
-            v.push_back(']');
-        }
+        gce = brf(epiphany, 0);
+        //v.push_back((char)get<0>(gce)); // nmrk
+        bitset<64> y = get<2>(gce); //  mnk (nth root)
+    // Split up the gce[2] variable because its a 2 decimal double
+        uint32_t x = y.to_ulong();
+        v.push_back((char)(uint8_t)(x >> 16)%256);
+        x >>= 8;
+        v.push_back((char)(uint8_t)(x >> 8)%256);
+        x >>= 8;
+        v.push_back((char)(uint8_t)(x%256));
+        x >>= 8;
+        
+        cout << " " << std::setprecision(15) << (float)get<2>(gce) << " ";
+        v += get<1>(gce);
         return v;
     }
 }
 // Best nth root finder (input, base, exponent)
-tuple<uint64_t, uint64_t, long double> brf(uint64_t n1, long double n2 = 3)
+tuple<uint64_t, string, long double> brf(uint64_t n1, long double n2 = 3)
 {
-    long double n3 = 0, nmrk = 0;
-    while (n2 <= 64)
+    
+    while (n2 <= 1)
     {
-        long double mk = 0, tptm = 0, mnk = 0, x = 0, dad = 0;
-        for (n3 = 0; tptm != n1 || mnk > 6250 ; nmrk++) {
+        long double n3 = 0, nmrk = 0, n4 = 0, n5 = 0, n6 = 0;
+        long double mk = 0, tptm = 0, mnk = 0, dad = 0;
+        // Using nmrk to show how many times we looped,
+        // we can eliminate the train of decimals, with
+        // a small integer. This, because its just like x*nmrk.
+        for (n3 = 0; tptm != n1 || mnk > 65535 ; nmrk++) {
+        // having all 5 decimals lets the computer run more
+        // balanced between math and logic.
+            n4 += 0.19625;
+            n2 += 0.15625;
             n3 += 0.015625;
             mk += 0.0073125;
             dad += 0.00390625;
-            mnk = pow(n1, 1.0/(mk+n3+dad));
-            tptm = pow((mnk), (mk+n3+dad));
+            n5 += 0.001953125;
+            //n6 += 0.0009765625;
+        // mnk is needed t be the nth root
+            mnk = pow(n1, 1.0/(n4+n2+mk+n3+dad));
+        // this verifies we have the root. 
+            tptm = pow(mnk, (n4+n2+mk+n3+dad));
         }
-        if (tptm - n1 == 0)
-        {
-            uint64_t y = (tptm);
-            return make_tuple(nmrk, 0, (mnk));
-        }
-        
+        //cout << (n4+n2+mk+n3+dad) << " " << flush;
+        //if (tptm - n1 == 0)
+        //{
+            string zip = "";
+            //cout << mnk << " " << nmrk << "-" << flush;
+            uint64_t z = (tptm);
+            
+            bitset<32> y = mnk*100; //  mnk (nth root)
+        // Split up the gce[2] variable because its a 2 decimal double
+            uint32_t x = y.to_ulong();
+            //cout << x << " " << flush;
+            zip.push_back((char)(x)%256);
+            x >>= 8;
+            zip.push_back((char)(x)%256);
+            x >>= 8;
+            zip.push_back((char)(x%256));
+            x >>= 8;
+            zip.push_back((char)(x%256));
+            x >>= 8;
+            cout << "n2: " << n2 << " " << flush;
+            zip = stressTest(nmrk, zip, (y.to_ulong()));
+            return make_tuple(nmrk, zip, (y.to_ulong()));
+            n2++;
+        //}
     }
-    return make_tuple(0, 0, 0);
+    cout << "%";
+    return make_tuple(0, "", 0);
 }
 
-// TODO: REDO
+string stressTest(uint8_t nmrk, string zip, long double mnk)
+{
+    long double n_2 = 0, exponent = 0;
+    long double n3 = 0, mk = 0, dad = 0, n4 = 0, n2 = 0;
+    uint64_t n_1 = 0, hi = 0;
+    uint64_t base = 0, inc = 0;
+    int f = 0;
+// This is nmrk (f)
+    while (nmrk > f) {
+        n4 += 0.19625;
+        n2 += 0.15625;
+        n3 += 0.015625;
+        mk += 0.0073125;
+        dad += 0.00390625;
+        f++;
+    }
+    if ((n4+n2+mk+n3+dad))
+// This will be the final whole number
+    base = zip[3];
+    base <<= 8;
+    base += zip[2];
+    base <<= 8;
+    base += zip[1];
+    base <<= 8;
+    base += zip[0];
+    n_2 = base;
+    hi = n_2;
+    if (mnk == hi)
+        return "";
+    //else
+    string zip_back = "";
+    if ((uint64_t)(mnk-hi) < 256) {
+        uint8_t xx = (mnk-hi);
+        zip_back = (char)(xx);
+        b.insert(xx);
+    }
+    else {
+        uint32_t xx = (mnk-hi-16776250);
+        zip_back.push_back((char)(xx >> 16)%256);
+        zip_back.push_back((char)(xx >> 8)%256);
+        zip_back.push_back((char)(xx)%256); 
+        b.insert((uint64_t)xx);
+    }
+    return zip_back;
+    //    cout << (uint64_t)(mnk-hi-16777000) << "*" << flush;
+// This is the difference from what was input
+// And what our nth root produced (generally 0)
+
+}
+
 string uncompress(string zip)
 {
-    uint64_t inc = 0, exponent = 0, base = 0;
-    long double n_1 = 0, n3 = 0, md = 0, sa = 0;
-    int f = zip[0];
-    while (f > 0) {
+    long double n_2 = 2, exponent = 0, hi = 0;
+    long double n3 = 0, mk = 0, dad = 0, n4 = 0, n2 = 0;
+    uint64_t n_1 = 0;
+    uint64_t base = 0, inc = 0;
+    int f = 0;
+// This is nmrk (f)
+    while ((int)zip[0] > f++) {
+        n4 += 0.19625;
+        n2 += 0.15625;
         n3 += 0.015625;
-        md += 0.0073125;
-        sa += 0.00390625;
-        f--;
+        mk += 0.0073125;
+        dad += 0.00390625;
     }
-    n_1 = 0;
-    base = zip[2];
-    base <<= (zip[1] << 8);
-    base /= 10;
-    base += 0.05;
-    if (zip.length() > 3 && zip[2] == '[' && zip[zip.length()-1] == ']') {
-        for (int i = 4 ; i < zip.length()-1 ; i++) {
+// This will be the final whole number
+    base = zip[1];
+    base <<= 8;
+    base += zip[2];
+    base <<= 8;
+    base += zip[3];
+    n_2 = base;
+    hi = n_2 / 100;
+// This is the difference from what was input
+// And what our nth root produced (generally 0)
+
+    if (zip.length() > 4 && zip[4] == '[' && zip[zip.length()-1] == ']') {
+        for (int i = 5 ; i < zip.length()-1 ; i++) {
             inc <<= 8;
             inc += zip[i];
         }
     }
-    n_1 = pow(base, (n3+md+sa)) + inc;
+    
+    cout << hi << " " << flush;
+    //cout << (n4+n2+mk+n3+dad) << " " << flush;
+    n_1 = pow(hi, (n4+n2+mk+n3+dad));
+    //if (hi == pow(n_1, (n4+n2+mk+n3+dad)))
+    //n_1 += inc;
+    
+    //cout << "*" << n_1 << flush;
+
     return pop_off(n_1);
 }
 
@@ -102,15 +201,22 @@ string uncompress(string zip)
 string pop_off(uint64_t b)
 {
     string y = "";
-    int i = 0;
-    while (i++ < 8)
+    int i = 8;
+    
+    while (i > 0 && end_file_len > 0)
     {
-        int a = (b % 256);
-        unsigned char x = a;
-        y.push_back(x);
+        bitset<8> a = b;
         b >>= 8;
+        y.push_back((char)a.to_ulong());
+        end_file_len--;
+        i--;
     }
-    return y;
+    string x = "";
+    for ( ; y.length() > 0 ; ) {
+        x.push_back(y.back());
+        y.pop_back();
+    }
+    return x;
 }
 
 vector<string> compress(vector<string> t)
@@ -148,7 +254,7 @@ vector<string> compress(vector<string> t)
             {
                 // Obvious, I think
                 exciting <<= 8;
-                exciting += a + 1;
+                exciting += a;
                 z++;
                 // 8 byte limit
                 if (z == 8)
@@ -168,7 +274,9 @@ vector<string> compress(vector<string> t)
                 m += "JJM";
             else
                 m += sepFix(inv_total);
-
+                
+            inv_total = 0;
+            
             // Write to file
             // & get output entropy inserts
             // entropy is n. How many different
@@ -221,9 +329,10 @@ int main(int argc, char *argv[])
 
     // File length
     double file_len = gs.length();
-
+    
     if (0 == strcmp(argv[1], "-c"))
     {
+        ofo << "[" << std::hex << gs.length() << "]";
         // All of file in segments
         vector<string> t{};
         int y = 0;
@@ -291,6 +400,16 @@ int main(int argc, char *argv[])
         // much easier, and faster. We're only concentrating
         // on the little of the file at once.
         // Take to making segments
+        int i = 0;
+        string out_size_h = "";
+        do {
+            i++;
+            out_size_h.push_back(gs[i]);
+        } while (gs[i+1] != ']');
+        cout << out_size_h << " " << flush;
+        end_file_len = strtol(out_size_h.c_str(),NULL,16);
+        gs.erase(gs.begin(),gs.begin()+i+2);
+        cout << end_file_len << flush;
         while ((y * bytes) + bytes < gs.length())
         {
             t.push_back(gs.substr((y * bytes) + bytes, bytes));
@@ -313,8 +432,6 @@ int main(int argc, char *argv[])
         {
             for (int h = 0 ; h < j.length() ; h++)
             {
-                buckets <<= 8;
-                buckets = buckets.to_ulong() + j[h];
                 y++;
                 JJM_spaces.push_back((char)j[h]);
                 if ("JJM" == JJM_spaces)
@@ -324,24 +441,27 @@ int main(int argc, char *argv[])
                     buckets = 0;
                     JJM_spaces.clear();
                 }
-                else if (JJM_spaces.length() == 3 && j[h+1] != '[')
+                else if (JJM_spaces.length() == 4 && j[h+1] != '[')
                 {
                     ofo << uncompress(JJM_spaces);
                     JJM_spaces.clear();
                 }
-                else if (JJM_spaces.length() == 3)
+                else if (JJM_spaces.length() == 4)
                 {
                     for ( ; h < j.length() ; )
                     {
                         JJM_spaces.push_back(j[h]);
                         h++;
-                        if (j[h] == ']')
+                        if (j[h-1] == ']')
                             break;
-                    }   
+                    }
+                    ofo << uncompress(JJM_spaces);
+                    JJM_spaces.clear();
                 }
             }
         }
     }
+    cout << " " << b.size() << "b";
     //output last of file
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
