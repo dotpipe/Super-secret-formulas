@@ -30,48 +30,41 @@ const uint64_t pow64 = -2;
 string sepFix(long double epiphany)
 {
     string v = "";
-    /*
-    if (epiphany < pow(2,32)) {
-        v.push_back('$');
-        v.push_back(epiphany%256);
-        epiphany >>= 8;
-        v.push_back(epiphany%256);
-        epiphany >>= 8;
-        v.push_back(epiphany%256);
-        epiphany >>= 8;
-        v.push_back(epiphany%256);
-        return v;
-    }
-    */
-    long double n = (long double)(epiphany/pow64);
-    n *= 100000;
-    uint64_t t = pow64 * (n/100000);
+    long double n = (epiphany/pow64)*100;
+    uint64_t t = round(pow64 * (n/100));
     if (t != epiphany) {
-        cout << setprecision(20) << t << " " << flush;
+        cout << setprecision(20) << t << "@" << flush;
+        cout << setprecision(20) << epiphany << "@" << flush;
     }
     
-    uint64_t x = n;
-    //if (n < pow(2,32)) {
-        
-    //    v.push_back('$');
-    //    v.push_back(x%256);
-    //    x >>= 8;
-    //    v.push_back(x%256);
-    //    x >>= 8;
+    int64_t x = 0;
     
-    v.push_back('#');
-    while (x > 0) {
-        v.push_back(x%256);
-        x >>= 8;
+    int i = 1, j = 7;
+    
+// break down infinitesimals to value
+// at end.
+    while (i < 20 && x != n) {
+        i++;
+        x = n*(pow(10,i));
     }
-    int i = 0;
+    
+    cout << setprecision(25) << x << " " << flush;
+    uint32_t y = n;
+    while (j > 0) {
+        v.push_back((char)(y >> j*8)%256);
+        if (y >> j*8 == 0)
+            v.pop_back();
+        j--;
+    }
     for (int c : v) {
         x <<= 8;
-        x = c;
+        x += c;
     }
-    long double z = x;
-    if (n != z)
-        cout << "!" << flush;
+    v.push_back((char)i);
+    v.push_back('#');
+    n /= pow(10,i);
+    if (round(pow64*(x/pow(10,i+2))) != t)
+        cout << t << endl << round(pow64*(x/pow(10,i+2))) << endl << endl << flush;
     
     return v;
 }
