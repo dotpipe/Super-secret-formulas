@@ -28,58 +28,67 @@ uint64_t end_file_len = 0;
 set<unsigned long long int> b = {};
 const bitset<48> pow64 = -1;
 
+// To-do: Please document this. (What is "epiphany"? What is the expected
+// output? Should be documented here, so that we don't need to search the whole
+// file to figure it out).
 string sepFix(uint64_t epiphany)
 {
     string v = "";
     long double t = epiphany;
-    uint64_t n = (long double)(pow64.to_ullong()); ///epic);
-    uint64_t epic = t; //pow64.to_ulong()/n; //abs(round(pow64.to_ullong() * (n)));
-    if (epiphany != (t)) {
+    uint64_t n = (long double)(pow64.to_ullong()); /// epic);
+    uint64_t epic = t; // pow64.to_ulong()/n; //abs(round(pow64.to_ullong() * (n)));
+    if (epiphany != (t))
+    {
         cout << setprecision(20) << n << "@" << flush;
         cout << setprecision(20) << epiphany << "@" << flush;
     }
-    long double z = (t/n);
+    long double z = (t / n);
     long double a = z;
-    long double x = a*powl(10,20);
+    long double x = a * powl(10, 20);
 
     int i = 0, j = 0;
 
-    while (epic > (pow(2,++i)));
+    while (epic > (pow(2, ++i)));
 
-    //v.push_back((char)i);
+    // v.push_back((char)i);
 
-    a = epic/(pow(2,i));
+    a = epic / (pow(2, i));
 
-    while (j < 12 && a*pow(10,j) != round(z)) {
+    while (j < 12 && a * pow(10, j) != round(z))
+    {
         j++;
-        z = a*pow(10,j);
+        z = a * pow(10, j);
     }
 
     cout << z << " " << endl;
-    //cout << y << "#" << endl;
+    // cout << y << "#" << endl;
     uint64_t y = z;
     cout << y << "#" << endl;
-// break down infinitesimals to value
-// at end.
-    while (y > 0) {
-        v.insert(v.begin(),(char)(y)%256);
+    // break down infinitesimals to value at end.
+    while (y > 0)
+    {
+        v.insert(v.begin(), (char)(y) % 256);
         y >>= 8;
-        //x = y;
+        // x = y;
     }
 
     y = x = 0;
 
-    for (unsigned int c : v) {
+    for (unsigned int c : v)
+    {
         y <<= 8;
         y += c;
     }
     x = y;
-    x /= pow(10,j);
-    //cout << setprecision(25) << epiphany << " " << i << endl << flush;
-    //v.push_back('#');
+    x /= pow(10, j);
+    // cout << setprecision(25) << epiphany << " " << i << endl << flush;
+    // v.push_back('#');
     long double x2 = x;
-    if (epiphany != round(x*(pow(2,i))/pow(10,j)))
-       cout << setprecision(25) << epiphany << endl << round(x*(pow(2,i))) << endl << endl << flush;
+    if (epiphany != round(x * (pow(2, i)) / pow(10, j)))
+        cout << setprecision(25) << epiphany << endl
+             << round(x * (pow(2, i))) << endl
+             << endl
+             << flush;
     else
     {
         cout << "." << flush;
@@ -92,12 +101,13 @@ string uncompress(string v)
 {
     int j = 0, i = (int)v.back();
     int64_t x = 0;
-    for (int c : v) {
+    for (int c : v)
+    {
         x <<= 8;
         x += c;
     }
 
-    return pop_off(round(pow64.to_ullong()*(x/pow(10,i+2))));
+    return pop_off(round(pow64.to_ullong() * (x / pow(10, i + 2))));
 }
 
 // Split 64 bits, into 8 bytes
@@ -116,7 +126,8 @@ string pop_off(uint64_t b)
         i--;
     }
     string x = "";
-    for ( ; y.length() > 0 ; ) {
+    for (; y.length() > 0;)
+    {
         x.push_back(y.back());
         y.pop_back();
     }
@@ -200,7 +211,7 @@ vector<string> compress(vector<string> t)
     return s;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 
     long int zips = 0;
@@ -240,7 +251,7 @@ int main(int argc, char *argv[])
         // All of file in segments
         vector<string> t{};
         int y = 0;
-        //Segment size
+        // Segment size
         int bytes = 16000;
         // Segments are made to make reading the file in
         // much easier, and faster. We're only concentrating
@@ -282,7 +293,7 @@ int main(int argc, char *argv[])
             for (int r : c)
             {
                 i++;
-                //if (i > 0)
+                // if (i > 0)
                 {
                     n.insert(tiptum);
                     tiptum.clear();
@@ -306,13 +317,14 @@ int main(int argc, char *argv[])
         // Take to making segments
         int i = 0;
         string out_size_h = "";
-        do {
+        do
+        {
             i++;
             out_size_h.push_back(gs[i]);
-        } while (gs[i+1] != ']');
+        } while (gs[i + 1] != ']');
         cout << out_size_h << " " << flush;
-        end_file_len = strtol(out_size_h.c_str(),NULL,16);
-        gs.erase(gs.begin(),gs.begin()+i+2);
+        end_file_len = strtol(out_size_h.c_str(), NULL, 16);
+        gs.erase(gs.begin(), gs.begin() + i + 2);
         cout << end_file_len << flush;
         while ((y * bytes) + bytes < gs.length())
         {
@@ -334,7 +346,7 @@ int main(int argc, char *argv[])
         bitset<24> buckets = 0;
         for (string j : t)
         {
-            for (int h = 0 ; h < j.length() ; h++)
+            for (int h = 0; h < j.length(); h++)
             {
                 y++;
                 JJM_spaces.push_back((char)j[h]);
@@ -345,18 +357,18 @@ int main(int argc, char *argv[])
                     buckets = 0;
                     JJM_spaces.clear();
                 }
-                else if (JJM_spaces.length() == 4 && j[h+1] != '[')
+                else if (JJM_spaces.length() == 4 && j[h + 1] != '[')
                 {
                     ofo << uncompress(JJM_spaces);
                     JJM_spaces.clear();
                 }
                 else if (JJM_spaces.length() == 4)
                 {
-                    for ( ; h < j.length() ; )
+                    for (; h < j.length();)
                     {
                         JJM_spaces.push_back(j[h]);
                         h++;
-                        if (j[h-1] == ']')
+                        if (j[h - 1] == ']')
                             break;
                     }
                     ofo << uncompress(JJM_spaces);
@@ -366,7 +378,7 @@ int main(int argc, char *argv[])
         }
     }
     cout << " " << b.size() << "b";
-    //output last of file
+    // output last of file
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
