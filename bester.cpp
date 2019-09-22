@@ -26,7 +26,7 @@ string stressTest(uint64_t, uint8_t nmrk, string zip, long double mnk);
 
 uint64_t end_file_len = 0;
 set<unsigned long long int> b = {};
-const bitset<32> pow64 = -1;
+const bitset<48> pow64 = -1;
 
 string sepFix(uint64_t epiphany)
 {
@@ -38,20 +38,32 @@ string sepFix(uint64_t epiphany)
         cout << setprecision(20) << n << "@" << flush;
         cout << setprecision(20) << epiphany << "@" << flush;
     }
-    
     long double z = (t/n);
     long double a = z;
-    long double x = a*powl(10,4);
+    long double x = a*powl(10,20);
     
     
-    int i = 1, j = 7;
+    int i = 0, j = 0;
     
-    uint64_t y = x;
+    while (epic > (pow(2,++i)));
+    
+    //v.push_back((char)i);
+    
+    a = epic/(pow(2,i));
+    
+    while (j < 12 && a*pow(10,j) != round(z)) {
+        j++;
+        z = a*pow(10,j);
+    }
+    
+    cout << z << " " << endl;
+    //cout << y << "#" << endl;
+    uint64_t y = z;
+    cout << y << "#" << endl;
 // break down infinitesimals to value
 // at end.
     while (y > 0) {
         v.insert(v.begin(),(char)(y)%256);
-        //y = x;
         y >>= 8;
         //x = y;
     }
@@ -63,12 +75,16 @@ string sepFix(uint64_t epiphany)
         y += c;
     }
     x = y;
-    x;
+    x /= pow(10,j);
     //cout << setprecision(25) << epiphany << " " << i << endl << flush;
-    v.push_back('#');
+    //v.push_back('#');
     long double x2 = x;
-    if (n*round(x) != epiphany)
-        cout << epiphany << endl << (n*round(x)) << endl << endl << flush;
+    if (epiphany != round(x*(pow(2,i))/pow(10,j)))
+       cout << setprecision(25) << epiphany << endl << round(x*(pow(2,i))) << endl << endl << flush;
+    else
+    {
+        cout << "." << flush;
+    }
     
     return v;
 }
@@ -146,7 +162,7 @@ vector<string> compress(vector<string> t)
                 exciting += a;
                 z++;
                 // 8 byte limit
-                if (z == 4)
+                if (z == 8)
                     break;
             }
 
