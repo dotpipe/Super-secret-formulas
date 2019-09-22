@@ -75,43 +75,73 @@ string sepFix(uint64_t epiphany)
         z = z * pow(10, 1);
     }
 
-    cout << z << " " << endl;
-    // cout << y << "#" << endl;
-    uint64_t y = z;
-    cout << y << "#" << endl;
+// make `y` === `z` & into byte format
     
-// move `y` == `z` into byte format
+    uint64_t y = z;
+    
     while (y > 0)
     {
         v.insert(v.begin(), (char)(y) % 256);
         y >>= 8;
-        // x = y;
     }
 
     y = 0;
 
+// pull numbers back out
+// for testing the value's output
+// TODO: get the right number
     for (unsigned int c : v)
     {
         y <<= 8;
         y += c;
     }
+    
+// START
+// Here, we're testing for how mch
+// data loss we got. And affter that
+// we'll be returning the return type, string.
     z = y;
     z /= pow(10, j);
-
-// v.push_back('#');
-    long double x2 = z;
-    if (epiphany != round(z * (pow(2, i)) / pow(10, j)))
-        cout << setprecision(25) << epiphany << endl
-             << round(z * (pow(2, i))) << endl
-             << endl
-             << flush;
-    else
-    {
-        cout << "." << flush;
+    int chk = 0, v_len = 0;
+    v_len = v.length();
+    if (v.length() > 3) {
+        chk = 1;
+        v_len = v.length();
     }
-
+    long double x2 = z;
+    if (-65536 < epiphany - round(z * (pow(2, i)) / pow(10, j)) < 65536) {
+        uint64_t h = epiphany - round(z * (pow(2, i)) / pow(10, j));
+        v.push_back((h >> 8)%256);
+        v.push_back(h%256);
+    }
+    else
+        cout << "." << flush;
 // `i` is the bit count
-    v.insert(v.begin(),(char)i);
+    if (33 >= i >= 35) {
+        chk += 2;
+    }
+    v_len = v.length();
+// END
+
+// Here we add just enough characters
+// to snatch our program from the jaws
+// of defeat, and still get the number
+// we need to bring it back.
+    switch(chk) {
+        case 1:
+        v.insert(v.begin(),(unsigned char)v_len);
+        v.insert(v.begin(),'$');
+        break;
+        case 2:
+        v.insert(v.begin(),(unsigned char)i);
+        v.insert(v.begin(),';');
+        break;
+        case 3:
+        v.insert(v.begin(),(unsigned char)v_len);
+        v.insert(v.begin(),(unsigned char)(i));
+        v.insert(v.begin(),'@');
+        break;
+    }
     
 // We are returning `v` which is the formatted
 // percentage, and the number of bits taken to
