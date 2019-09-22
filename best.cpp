@@ -49,16 +49,16 @@ string sepFix(long double epiphany)
     if (t != epiphany) {
         cout << setprecision(20) << t << " " << flush;
     }
-    
+
     uint64_t x = n;
     //if (n < pow(2,32)) {
-        
+
     //    v.push_back('$');
     //    v.push_back(x%256);
     //    x >>= 8;
     //    v.push_back(x%256);
     //    x >>= 8;
-    
+
     v.push_back('#');
     while (x > 0) {
         v.push_back(x%256);
@@ -72,7 +72,7 @@ string sepFix(long double epiphany)
     long double z = x;
     if (n != z)
         cout << "!" << flush;
-    
+
     return v;
 }
 
@@ -95,12 +95,12 @@ string brf(uint64_t n1, long double n2 = 3)
         n5 += 0.001953125;
     // mnk is needed t be the nth root
         mnk = pow(n1, 1.0/(n4+n2+mk+n3+dad+n5));
-    // this verifies we have the root. 
+    // this verifies we have the root.
         tptm = pow(mnk, (n4+n2+mk+n3+dad+n5));
     }
     string zip = "";
     uint64_t z = (tptm);
-    
+
     bitset<64> y = mnk*1000000; //  mnk (nth root)
     // Split up the gce[2] variable because its a 2 decimal double
     uint64_t x = y.to_ullong();
@@ -157,19 +157,19 @@ string stressTest(uint64_t t, uint8_t nmrk, string zip, long double mnk)
 // this is going back to equivalence with mnk
 // (the root base)
     tptm = n_2 / 100000000;
-    
+
 // Here we're just getting the percent
 // difference between the whole number
 // t, and the number we got through
 // saving the information. (scary)
     unsigned long long int t2 = 0;
     t2 = pow((tptm),(n4+n2+mk+dad+n5));
-    //t2 = t2 - t        
+    //t2 = t2 - t
     long double percent_of = ((long double)t/t2);
     uint64_t final_perc = (uint64_t)(percent_of*10000);
     long double copy_perc = 0;// final_perc;
     //cout << copy_perc << " " << final_perc << " " << percent_of << endl << flush;
-    
+
     int n = zip.length();
     while (final_perc > 0) {
         zip += (final_perc%256);
@@ -179,7 +179,7 @@ string stressTest(uint64_t t, uint8_t nmrk, string zip, long double mnk)
         final_perc <<= 8;
         final_perc += (int)zip[i];
     }
-    
+
     copy_perc = (double)final_perc;
     copy_perc /= 100000;
     //copy_perc *= copy_perc/2;
@@ -197,7 +197,7 @@ string stressTest(uint64_t t, uint8_t nmrk, string zip, long double mnk)
 // Save a little space by squaring what
 // were getting at a time. 6 bytes each
 // so less than that with a '$' is the end.
- 
+
     if (t - t3 - 1 == 0) {
         zip += '$';
     }
@@ -210,7 +210,6 @@ string stressTest(uint64_t t, uint8_t nmrk, string zip, long double mnk)
     return zip;
 
 }
-
 
 string uncompress(string zip)
 {
@@ -244,7 +243,7 @@ string uncompress(string zip)
             inc += zip[i];
         }
     }
-    
+
     n_1 = pow(hi, (n4+n2+mk+n3+dad));
 
     return pop_off(n_1);
@@ -256,7 +255,7 @@ string pop_off(uint64_t b)
 {
     string y = "";
     int i = 8;
-    
+
     while (i > 0 && end_file_len > 0)
     {
         bitset<8> a = b;
@@ -328,9 +327,9 @@ vector<string> compress(vector<string> t)
                 m += "JJM";
             else
                 m += sepFix(inv_total);
-                
+
             inv_total = 0;
-            
+
             // Write to file
             // & get output entropy inserts
             // entropy is n. How many different
@@ -346,7 +345,7 @@ vector<string> compress(vector<string> t)
     m += sepFix(inv_total);
     s.push_back(m);
     m.clear();
-    
+
     return s;
 }
 
@@ -383,7 +382,7 @@ int main(int argc, char *argv[])
 
     // File length
     double file_len = gs.length();
-    
+
     if (0 == strcmp(argv[1], "-c"))
     {
         ofo << "[" << std::hex << gs.length() << "]";
@@ -427,19 +426,19 @@ int main(int argc, char *argv[])
         int i = 0;
         for (string c : t)
         {
-        
+
             string tiptum = "";
             for (int r : c)
             {
                 i++;
                 //if (i > 0)
-                { 
+                {
                     n.insert(tiptum);
                     tiptum.clear();
                 }
                 tiptum.push_back(r);
             }
-            
+
             i = 0;
             ofo << c;
         }
