@@ -17,12 +17,10 @@
 
 using namespace std;
 
-string brf(uint64_t, long double);
 vector<string> compress(vector<string>);
 string uncompress(string v);
 string pop_off(uint64_t);
 string sepFix(long double epiphany);
-string stressTest(uint64_t, uint8_t nmrk, string zip, long double mnk);
 
 uint64_t end_file_len = 0;
 set<unsigned long long int> b = {};
@@ -66,15 +64,15 @@ string sepFix(uint64_t epiphany)
     
 // `z` is the percent of which `t` (`epiphany`)
 // is to `n` pow(2,x*32) in whole numbers
-    long double z = 0;
+    long double z = a;
     
 // Here we are adjusting to get a whole number
 // `z` to be copied into byte format. That will be
 // our next step.
-    while (j < 12 && a * pow(10, j) != round(z))
+    while (j < 7)
     {
         j++;
-        z = z * pow(10, j);
+        z = z * pow(10, 1);
     }
 
     cout << z << " " << endl;
