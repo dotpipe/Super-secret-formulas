@@ -19,228 +19,70 @@ using namespace std;
 
 string brf(uint64_t, long double);
 vector<string> compress(vector<string>);
-string uncompress(uint32_t);
+string uncompress(string v);
 string pop_off(uint64_t);
 string sepFix(long double epiphany);
 string stressTest(uint64_t, uint8_t nmrk, string zip, long double mnk);
 
 uint64_t end_file_len = 0;
 set<unsigned long long int> b = {};
-const uint64_t pow64 = -2;
-string sepFix(long double epiphany)
+const bitset<32> pow64 = -1;
+
+string sepFix(uint64_t epiphany)
 {
     string v = "";
-    long double n = (epiphany/pow64)*100;
-    uint64_t t = round(pow64 * (n/100));
-    if (t != epiphany) {
-        cout << setprecision(20) << t << "@" << flush;
+    long double t = epiphany;
+    uint64_t n = (long double)(pow64.to_ullong()); ///epic);
+    uint64_t epic = t; //pow64.to_ulong()/n; //abs(round(pow64.to_ullong() * (n)));
+    if (epiphany != (t)) {
+        cout << setprecision(20) << n << "@" << flush;
         cout << setprecision(20) << epiphany << "@" << flush;
     }
     
-    int64_t x = 0;
+    long double z = (t/n);
+    long double a = z;
+    long double x = a*powl(10,4);
+    
     
     int i = 1, j = 7;
     
+    uint64_t y = x;
 // break down infinitesimals to value
 // at end.
-    while (i < 20 && x != n) {
-        i++;
-        x = n*(pow(10,i));
+    while (y > 0) {
+        v.insert(v.begin(),(char)(y)%256);
+        //y = x;
+        y >>= 8;
+        //x = y;
     }
     
-    cout << setprecision(25) << x << " " << flush;
-    uint32_t y = n;
-    while (j > 0) {
-        v.push_back((char)(y >> j*8)%256);
-        if (y >> j*8 == 0)
-            v.pop_back();
-        j--;
+    y = x = 0;
+    
+    for (unsigned int c : v) {
+        y <<= 8;
+        y += c;
     }
-    for (int c : v) {
-        x <<= 8;
-        x += c;
-    }
-    v.push_back((char)i);
+    x = y;
+    x;
+    //cout << setprecision(25) << epiphany << " " << i << endl << flush;
     v.push_back('#');
-    n /= pow(10,i);
-    if (round(pow64*(x/pow(10,i+2))) != t)
-        cout << t << endl << round(pow64*(x/pow(10,i+2))) << endl << endl << flush;
+    long double x2 = x;
+    if (n*round(x) != epiphany)
+        cout << epiphany << endl << (n*round(x)) << endl << endl << flush;
     
     return v;
 }
 
-// Best nth root finder (input, base, exponent)
-string brf(uint64_t n1, long double n2 = 3)
+string uncompress(string v)
 {
-    long double n3 = 0, nmrk = 0, n4 = 0, n5 = 0, n6 = 0;
-    long double mk = 0, tptm = 0, mnk = 0, dad = 0;
-    // Using nmrk to show how many times we looped,
-    // we can eliminate the train of decimals, with
-    // a small integer. This, because its just like x*nmrk.
-    for (n3 = 0; tptm != n1 || mnk > 256  ; nmrk++) {
-    // having all 5 decimals lets the computer run more
-    // balanced between math and logic.
-        n4 += 0.19625;
-        n2 += 0.15625;
-        n3 += 0.015625;
-        mk += 0.0073125;
-        dad += 0.00390625;
-        n5 += 0.001953125;
-    // mnk is needed t be the nth root
-        mnk = pow(n1, 1.0/(n4+n2+mk+n3+dad+n5));
-    // this verifies we have the root. 
-        tptm = pow(mnk, (n4+n2+mk+n3+dad+n5));
-    }
-    string zip = "";
-    uint64_t z = (tptm);
-    
-    bitset<64> y = mnk*1000000; //  mnk (nth root)
-    // Split up the gce[2] variable because its a 2 decimal double
-    uint64_t x = y.to_ullong();
-    //cout << x << " " << endl << flush;
-    // record into zip string
-    while (y.to_ullong() > 0) {
-        zip.push_back((char)(y.to_ullong()%256));
-        y >>= 8;
-    }
-    // this checks out to make sure we have
-    // all the data coming back
-    zip = stressTest(n1, nmrk, zip, mnk);
-    return zip;
-
-}
-
-// You will be basing the decompression upon
-// this function, stressTest(). It checks that
-// we're getting the right data and and having
-// enough bread crumbs to the answer.
-
-string stressTest(uint64_t t, uint8_t nmrk, string zip, long double mnk)
-{
-    long double n_2 = 0, exponent = 0;
-    long double n3 = 0, mk = 0, dad = 0, n4 = 0, n5 = 0, n2 = 0, n1 = 0;
-    uint64_t n_1 = 0, hi = 0;
-    long double base = 0, inc = 0, tptm = 0;
-    int f = 0;
-// This is nmrk (f)
-// nmrk is most often a 21 or 22
-// so below we use percents for the
-// difference (yay!)
-    while (22 > f) {
-    // having all 5 decimals lets the computer run more
-    // balanced between math and logic.
-        n4 += 0.19625;
-        n2 += 0.15625;
-        n3 += 0.015625;
-        mk += 0.0073125;
-        dad += 0.00390625;
-        n5 += 0.001953125;
-        f++;
-    }
-// This will be the final whole number
-    for (int i = 0 ; i < zip.length() ; i++) {
-        n_1 <<= 8;
-        n_1 += zip[zip.length()-1-i];
-        base = n_1;
-    }
-    n_2 = base;
-    hi = n_2;
-    n_2 = (long double)hi;
-    mnk;
-// this is going back to equivalence with mnk
-// (the root base)
-    tptm = n_2 / 100000000;
-    
-// Here we're just getting the percent
-// difference between the whole number
-// t, and the number we got through
-// saving the information. (scary)
-    unsigned long long int t2 = 0;
-    t2 = pow((tptm),(n4+n2+mk+dad+n5));
-    //t2 = t2 - t        
-    long double percent_of = ((long double)t/t2);
-    uint64_t final_perc = (uint64_t)(percent_of*10000);
-    long double copy_perc = 0;// final_perc;
-    //cout << copy_perc << " " << final_perc << " " << percent_of << endl << flush;
-    
-    int n = zip.length();
-    while (final_perc > 0) {
-        zip += (final_perc%256);
-        final_perc >>= 8;
-    }
-    for (int i = n ; i < zip.length() ; i++) {
-        final_perc <<= 8;
-        final_perc += (int)zip[i];
+    int j = 0, i = (int)v.back();
+    int64_t x = 0;
+    for (int c : v) {
+        x <<= 8;
+        x += c;
     }
     
-    copy_perc = (double)final_perc;
-    copy_perc /= 100000;
-    //copy_perc *= copy_perc/2;
-    uint64_t t3 = (t2*percent_of);
-    if (t3 == t || t-t3 == 0 || t == 0 || t-t3-1 == 0 || t-t3+1 == 0)
-    {}//    cout << "@" << flush;
-    else {
-        cout << t-t3 << " " << t << endl << flush;
-        cout << copy_perc << " " << final_perc << " " << percent_of << endl << flush;
-    }
-    //else if (t != 0) {
-     //   cout << setprecision(25) << t-(uint64_t)(t2*final_perc) << " " << t << endl << flush;
-     //   copy_perc = final_perc;
-        //cout << (double)t-(double)(t2*final_perc)+t2 << endl;
-// Save a little space by squaring what
-// were getting at a time. 6 bytes each
-// so less than that with a '$' is the end.
- 
-    if (t - t3 - 1 == 0) {
-        zip += '$';
-    }
-    if (t - t3 + 1 == 0) {
-        zip += '@';
-    }
-    if (zip.length() == 6) {
-        zip += '#';
-    }
-    return zip;
-
-}
-
-
-string uncompress(string zip)
-{
-    long double n_2 = 2, exponent = 0, hi = 0;
-    long double n3 = 0, mk = 0, dad = 0, n4 = 0, n2 = 0;
-    uint64_t n_1 = 0;
-    uint64_t base = 0, inc = 0;
-    int f = 0;
-// This is nmrk (f)
-    while ((int)zip[0] > f++) {
-        n4 += 0.19625;
-        n2 += 0.15625;
-        n3 += 0.015625;
-        mk += 0.0073125;
-        dad += 0.00390625;
-    }
-// This will be the final whole number
-    base = zip[1];
-    base <<= 8;
-    base += zip[2];
-    base <<= 8;
-    base += zip[3];
-    n_2 = base;
-    hi = n_2 / 100;
-// This is the difference from what was input
-// And what our nth root produced (generally 0)
-
-    if (zip.length() > 4 && zip[4] == '[' && zip[zip.length()-1] == ']') {
-        for (int i = 5 ; i < zip.length()-1 ; i++) {
-            inc <<= 8;
-            inc += zip[i];
-        }
-    }
-    
-    n_1 = pow(hi, (n4+n2+mk+n3+dad));
-
-    return pop_off(n_1);
+    return pop_off(round(pow64.to_ullong()*(x/pow(10,i+2))));
 }
 
 // Split 64 bits, into 8 bytes
@@ -304,7 +146,7 @@ vector<string> compress(vector<string> t)
                 exciting += a;
                 z++;
                 // 8 byte limit
-                if (z == 8)
+                if (z == 4)
                     break;
             }
 

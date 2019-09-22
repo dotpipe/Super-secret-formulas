@@ -8,6 +8,8 @@
         "bitset": "cpp",
         "ostream": "cpp",
         "tuple": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "iostream": "cpp",
+        "cstdlib": "cpp"
     }
 }
