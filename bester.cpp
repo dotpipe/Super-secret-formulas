@@ -31,6 +31,11 @@ const bitset<48> pow64 = -1;
 // To-do: Please document this. (What is "epiphany"? What is the expected
 // output? Should be documented here, so that we don't need to search the whole
 // file to figure it out).
+
+// Epiphany is a multichar (upto 8) number
+// that was created with >> 8 and (int)char
+// so we want to bring this number back.
+
 string sepFix(uint64_t epiphany)
 {
     string v = "";
@@ -42,29 +47,42 @@ string sepFix(uint64_t epiphany)
         cout << setprecision(20) << n << "@" << flush;
         cout << setprecision(20) << epiphany << "@" << flush;
     }
-    long double z = (t / n);
-    long double a = z;
-    long double x = a * powl(10, 20);
+    
 
+    long double a = 0, s = 0;
     int i = 0, j = 0;
 
+// `epic` is `epiphany`. We're counting
+// how many bits it will take to get
+// a decently small percent, but one
+// that isn't too small
     while (epic > (pow(2, ++i)));
 
-    // v.push_back((char)i);
+// We will record `i` to make the note
+// of how many bits it takes for some decent
+// percent; at the bottom of the function
 
     a = epic / (pow(2, i));
-
+    
+// `z` is the percent of which `t` (`epiphany`)
+// is to `n` pow(2,x*32) in whole numbers
+    long double z = 0;
+    
+// Here we are adjusting to get a whole number
+// `z` to be copied into byte format. That will be
+// our next step.
     while (j < 12 && a * pow(10, j) != round(z))
     {
         j++;
-        z = a * pow(10, j);
+        z = z * pow(10, j);
     }
 
     cout << z << " " << endl;
     // cout << y << "#" << endl;
     uint64_t y = z;
     cout << y << "#" << endl;
-    // break down infinitesimals to value at end.
+    
+// move `y` == `z` into byte format
     while (y > 0)
     {
         v.insert(v.begin(), (char)(y) % 256);
@@ -72,21 +90,21 @@ string sepFix(uint64_t epiphany)
         // x = y;
     }
 
-    y = x = 0;
+    y = 0;
 
     for (unsigned int c : v)
     {
         y <<= 8;
         y += c;
     }
-    x = y;
-    x /= pow(10, j);
-    // cout << setprecision(25) << epiphany << " " << i << endl << flush;
-    // v.push_back('#');
-    long double x2 = x;
-    if (epiphany != round(x * (pow(2, i)) / pow(10, j)))
+    z = y;
+    z /= pow(10, j);
+
+// v.push_back('#');
+    long double x2 = z;
+    if (epiphany != round(z * (pow(2, i)) / pow(10, j)))
         cout << setprecision(25) << epiphany << endl
-             << round(x * (pow(2, i))) << endl
+             << round(z * (pow(2, i))) << endl
              << endl
              << flush;
     else
@@ -94,6 +112,12 @@ string sepFix(uint64_t epiphany)
         cout << "." << flush;
     }
 
+// `i` is the bit count
+    v.insert(v.begin(),(char)i);
+    
+// We are returning `v` which is the formatted
+// percentage, and the number of bits taken to
+// get it all in there.
     return v;
 }
 
