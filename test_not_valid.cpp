@@ -277,19 +277,19 @@ int main(int c, char *argv[])
         int i = 0;
         for (string c : t)
         {
-        
+
             string tiptum = "";
             for (int r : c)
             {
                 i++;
                 //if (i > 0)
-                { 
+                {
                     n.insert(tiptum);
                     tiptum.clear();
                 }
                 tiptum.push_back(r);
             }
-            
+
             i = 0;
             ofo << c;
         }

@@ -41,21 +41,21 @@ string sepFix(uint64_t epiphany)
     long double z = (t/n);
     long double a = z;
     long double x = a*powl(10,20);
-    
-    
+
+
     int i = 0, j = 0;
-    
+
     while (epic > (pow(2,++i)));
-    
+
     //v.push_back((char)i);
-    
+
     a = epic/(pow(2,i));
-    
+
     while (j < 12 && a*pow(10,j) != round(z)) {
         j++;
         z = a*pow(10,j);
     }
-    
+
     cout << z << " " << endl;
     //cout << y << "#" << endl;
     uint64_t y = z;
@@ -67,9 +67,9 @@ string sepFix(uint64_t epiphany)
         y >>= 8;
         //x = y;
     }
-    
+
     y = x = 0;
-    
+
     for (unsigned int c : v) {
         y <<= 8;
         y += c;
@@ -85,7 +85,7 @@ string sepFix(uint64_t epiphany)
     {
         cout << "." << flush;
     }
-    
+
     return v;
 }
 
@@ -97,7 +97,7 @@ string uncompress(string v)
         x <<= 8;
         x += c;
     }
-    
+
     return pop_off(round(pow64.to_ullong()*(x/pow(10,i+2))));
 }
 
@@ -107,7 +107,7 @@ string pop_off(uint64_t b)
 {
     string y = "";
     int i = 8;
-    
+
     while (i > 0 && end_file_len > 0)
     {
         bitset<8> a = b;
@@ -179,9 +179,9 @@ vector<string> compress(vector<string> t)
                 m += "JJM";
             else
                 m += sepFix(inv_total);
-                
+
             inv_total = 0;
-            
+
             // Write to file
             // & get output entropy inserts
             // entropy is n. How many different
@@ -197,7 +197,7 @@ vector<string> compress(vector<string> t)
     m += sepFix(inv_total);
     s.push_back(m);
     m.clear();
-    
+
     return s;
 }
 
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 
     // File length
     double file_len = gs.length();
-    
+
     if (0 == strcmp(argv[1], "-c"))
     {
         ofo << "[" << std::hex << gs.length() << "]";
@@ -278,19 +278,19 @@ int main(int argc, char *argv[])
         int i = 0;
         for (string c : t)
         {
-        
+
             string tiptum = "";
             for (int r : c)
             {
                 i++;
                 //if (i > 0)
-                { 
+                {
                     n.insert(tiptum);
                     tiptum.clear();
                 }
                 tiptum.push_back(r);
             }
-            
+
             i = 0;
             ofo << c;
         }
