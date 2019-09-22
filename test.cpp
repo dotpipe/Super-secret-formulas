@@ -15,7 +15,6 @@
 
 using namespace std;
 
-
 string epic(uint64_t, uint8_t);
 tuple<uint64_t, uint8_t, uint8_t> brf (uint64_t, uint8_t, uint8_t);
 vector<string> compress(vector<string>);
@@ -105,7 +104,6 @@ vector<string> compress(vector<string> t) {
         while (tv.length() >= 8) {
             z = 0;
 
-
             // Let's go thru each char, sequencing 8 bytes
             // end to end. We'll
             // use this to compress with.
@@ -168,7 +166,6 @@ vector<string> compress(vector<string> t) {
 }
 
 int main(int c, char * argv[]) {
-
 
     long int zips = 0;
     if (c < 5) {

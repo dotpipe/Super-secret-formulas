@@ -42,7 +42,6 @@ string sepFix(uint64_t epiphany)
     long double a = z;
     long double x = a*powl(10,20);
 
-
     int i = 0, j = 0;
 
     while (epic > (pow(2,++i)));

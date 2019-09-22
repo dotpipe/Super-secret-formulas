@@ -15,7 +15,6 @@
 
 using namespace std;
 
-
 string epic(uint8_t);
 tuple<uint8_t, long double, long double> brf (unsigned long long int, long double, long double);
 vector<string> compress(vector<string>);
@@ -179,7 +178,6 @@ vector<string> compress(vector<string> t) {
 }
 
 int main(int c, char * argv[]) {
-
 
     long int zips = 0;
     if (c < 4) {

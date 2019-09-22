@@ -211,7 +211,6 @@ string stressTest(uint64_t t, uint8_t nmrk, string zip, long double mnk)
 
 }
 
-
 string uncompress(string zip)
 {
     long double n_2 = 2, exponent = 0, hi = 0;
