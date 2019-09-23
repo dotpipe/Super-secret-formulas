@@ -41,68 +41,105 @@ string sepFix(uint64_t epiphany)
     uint64_t n = (long double)(pow64.to_ullong()); /// epic);
     long double epic = t; // pow64.to_ulong()/n; //abs(round(pow64.to_ullong() * (n)));
     uint64_t lng = 0;
-        for (int i = 25 ; i > 10 ; i--) {
-            epic = t/n * pow(10,i);
-            lng = epic;
-            if (lng == 0)
-                continue;
-            while (lng > 0) {
-                v.insert(v.begin(), (unsigned char)(lng) % 256);
-                lng >>= 8;
-            }
-            for (unsigned int c : v) {
-                lng <<= 8;
-                lng += c;
-            }
-            uint64_t lgn = lng;
-            v.clear();
-            int y = 0, z = 0;
-            for (int j = 25 ; j > 10 ; j--) {
-                if ((t-(n* (lng / pow(10,j)))) > 65535) {
-                    while (lng > 0) {
-                        v.insert(v.begin(), (unsigned char)(lng) % 256);
-                        lng >>= 8;
-                    }
-                    lng = (t-(n*(lgn / pow(10,j))));
-                    while (lng > 0) {
-                        v.insert(v.begin(), (unsigned char)(lng) % 256);
-                        lng >>= 8;
-                    }
-                    
-                // what is i and j?
-                    v.insert(v.begin(), (unsigned char)(i));
-                    if (i != j) {
-                        v.insert(v.begin(), (unsigned char)(j));
-                        v.push_back('&');
-                    }
-                    else // j == i
-                        v.push_back('R');
-                    // catch the best we can :)
-                    if (w.length() == 0 || w.length() > v.length()) {
-                        y = i; z = j;
-                        w = v;
-                    }
+    
+    if (t < 16777216) {
+        long double e_ = epiphany;
+        uint64_t epic_ = e_;// * pow(10,25);
+        while (epic_ > 0) {
+            v.insert(v.begin(), (unsigned char)(epic_) % 256);
+            epic_ >>= 8;
+        }
+        v.push_back('?');
+        /*
+        lng = (t-(n*(epic_ / pow(10,25))));
+        while (lng > 0) {
+            v.insert(v.begin(), (unsigned char)(lng) % 256);
+            lng >>= 8;
+        }
+        //cout << v.length() << " " << e_ << " " << flush;
+        v.push_back('?');
+        */
+        return v;
+    }
+    for (int i = 25 ; i > 0 ; i--) {
+        epic = t/n * pow(10,i);
+        lng = epic;
+        if (lng == 0)
+            continue;
+        while (lng > 0) {
+            v.insert(v.begin(), (unsigned char)(lng) % 256);
+            lng >>= 8;
+        }
+        for (unsigned int c : v) {
+            lng <<= 8;
+            lng += c;
+        }
+        uint64_t lgn = lng;
+        v.clear();
+        int y = 0, z = 0;
+        for (int j = 25 ; j > 0 ; j--) {
+            uint64_t t_ = lng;
+            if ((t-(n* (lng / pow(10,j)))) > 65536) {
+                while (lng > 0) {
+                    v.insert(v.begin(), (unsigned char)(lng) % 256);
+                    lng >>= 8;
                 }
-                v.clear();
+                for (unsigned int c : v) {
+                    lng <<= 8;
+                    lng += c;
+                }
+                if (t_ != lng) {
+                //    cout << "?" << flush;
+                    v.clear();
+                    continue;
+                }
+                //else
+                //    cout << "." << flush;
+                lng = (t-(n*(lgn / pow(10,j))));
+                while (lng > 0) {
+                    v.insert(v.begin(), (unsigned char)(lng) % 256);
+                    lng >>= 8;
+                }
+                //cout << v.length() << " " << flush;
+            // just taking j now ->* what is i and j?
+            // I have the number of i, I just don't need it :)
+                v.insert(v.begin(), (unsigned char)(j));
+                if (i != j) {
+                //    v.insert(v.begin(), (unsigned char)(j));
+                //    v.push_back('#');
+                }
+                //else // j == i
+                    v.push_back('S');
+                // catch the best we can :)
+                if (w.length() == 0 || w.length() > v.length()) {
+                    y = i; z = j;
+                    w = v;
+                }
+                if (w.length() <= 4)
+                    return w;
             }
+            v.clear();
         }
-        if (w.length() == 0) {
-            long double e_ = epiphany;
-            uint64_t epic_ = e_ * pow(10,25);
-            while (epic_ > 0) {
-                v.insert(v.begin(), (unsigned char)(epic_) % 256);
-                epic_ >>= 8;
-            }
-            v.push_back('?');
-            lng = (t-(n*(epic_ / pow(10,25))));
-            while (lng > 0) {
-                v.insert(v.begin(), (unsigned char)(lng) % 256);
-                lng >>= 8;
-            }
-            
-            v.push_back('?');
-            return v;
+    }
+    if (w.length() == 0) {
+        long double e_ = epiphany;
+        uint64_t epic_ = e_;// * pow(10,25);
+        while (epic_ > 0) {
+            v.insert(v.begin(), (unsigned char)(epic_) % 256);
+            epic_ >>= 8;
         }
+        v.push_back('?');
+        /*
+        lng = (t-(n*(epic_ / pow(10,25))));
+        while (lng > 0) {
+            v.insert(v.begin(), (unsigned char)(lng) % 256);
+            lng >>= 8;
+        }
+        //cout << v.length() << " " << e_ << " " << flush;
+        v.push_back('?');
+        */
+        return v;
+    }
     return w;
     
 // We are returning `v` or `w` which is the formatted
