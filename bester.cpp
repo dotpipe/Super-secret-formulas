@@ -23,8 +23,8 @@ string pop_off(uint64_t);
 string sepFix(long double epiphany);
 
 uint64_t end_file_len = 0;
-set<unsigned long long int> b = {};
-const bitset<48> pow64 = -1;
+set<char> b = {};
+const bitset<64> pow64 = -1;
 
 // To-do: Please document this. (What is "epiphany"? What is the expected
 // output? Should be documented here, so that we don't need to search the whole
@@ -36,117 +36,78 @@ const bitset<48> pow64 = -1;
 
 string sepFix(uint64_t epiphany)
 {
-    string v = "";
+    string v = "", w = "";
     long double t = epiphany;
     uint64_t n = (long double)(pow64.to_ullong()); /// epic);
-    uint64_t epic = t; // pow64.to_ulong()/n; //abs(round(pow64.to_ullong() * (n)));
-    if (epiphany != (t))
-    {
-        cout << setprecision(20) << n << "@" << flush;
-        cout << setprecision(20) << epiphany << "@" << flush;
-    }
+    long double epic = t; // pow64.to_ulong()/n; //abs(round(pow64.to_ullong() * (n)));
+    uint64_t lng = 0;
+        for (int i = 25 ; i > 10 ; i--) {
+            epic = t/n * pow(10,i);
+            lng = epic;
+            if (lng == 0)
+                continue;
+            while (lng > 0) {
+                v.insert(v.begin(), (unsigned char)(lng) % 256);
+                lng >>= 8;
+            }
+            for (unsigned int c : v) {
+                lng <<= 8;
+                lng += c;
+            }
+            uint64_t lgn = lng;
+            v.clear();
+            int y = 0, z = 0;
+            for (int j = 25 ; j > 10 ; j--) {
+                if ((t-(n* (lng / pow(10,j)))) > 65535) {
+                    while (lng > 0) {
+                        v.insert(v.begin(), (unsigned char)(lng) % 256);
+                        lng >>= 8;
+                    }
+                    lng = (t-(n*(lgn / pow(10,j))));
+                    while (lng > 0) {
+                        v.insert(v.begin(), (unsigned char)(lng) % 256);
+                        lng >>= 8;
+                    }
+                    
+                // what is i and j?
+                    v.insert(v.begin(), (unsigned char)(i));
+                    if (i != j) {
+                        v.insert(v.begin(), (unsigned char)(j));
+                        v.push_back('&');
+                    }
+                    else // j == i
+                        v.push_back('R');
+                    // catch the best we can :)
+                    if (w.length() == 0 || w.length() > v.length()) {
+                        y = i; z = j;
+                        w = v;
+                    }
+                }
+                v.clear();
+            }
+        }
+        if (w.length() == 0) {
+            long double e_ = epiphany;
+            uint64_t epic_ = e_ * pow(10,25);
+            while (epic_ > 0) {
+                v.insert(v.begin(), (unsigned char)(epic_) % 256);
+                epic_ >>= 8;
+            }
+            v.push_back('?');
+            lng = (t-(n*(epic_ / pow(10,25))));
+            while (lng > 0) {
+                v.insert(v.begin(), (unsigned char)(lng) % 256);
+                lng >>= 8;
+            }
+            
+            v.push_back('?');
+            return v;
+        }
+    return w;
     
-
-    long double a = 0, s = 0;
-    int i = 0, j = 0;
-
-// `epic` is `epiphany`. We're counting
-// how many bits it will take to get
-// a decently small percent, but one
-// that isn't too small
-    while (epic > (pow(2, ++i)));
-
-// We will record `i` to make the note
-// of how many bits it takes for some decent
-// percent; at the bottom of the function
-
-    a = epic / (pow(2, i));
-    
-// `z` is the percent of which `t` (`epiphany`)
-// is to `n` pow(2,x*32) in whole numbers
-    long double z = a;
-    
-// Here we are adjusting to get a whole number
-// `z` to be copied into byte format. That will be
-// our next step.
-    while (j < 7)
-    {
-        j++;
-        z = z * pow(10, 1);
-    }
-
-// make `y` === `z` & into byte format
-    
-    uint64_t y = z;
-    
-    while (y > 0)
-    {
-        v.insert(v.begin(), (char)(y) % 256);
-        y >>= 8;
-    }
-
-    y = 0;
-
-// pull numbers back out
-// for testing the value's output
-// TODO: get the right number
-    for (unsigned int c : v)
-    {
-        y <<= 8;
-        y += c;
-    }
-    
-// START
-// Here, we're testing for how mch
-// data loss we got. And affter that
-// we'll be returning the return type, string.
-    z = y;
-    z /= pow(10, j);
-    int chk = 0, v_len = 0;
-    v_len = v.length();
-    if (v.length() > 3) {
-        chk = 1;
-        v_len = v.length();
-    }
-    long double x2 = z;
-    if (-65536 < epiphany - round(z * (pow(2, i)) / pow(10, j)) < 65536) {
-        uint64_t h = epiphany - round(z * (pow(2, i)) / pow(10, j));
-        v.push_back((h >> 8)%256);
-        v.push_back(h%256);
-    }
-    else
-        cout << "." << flush;
-// `i` is the bit count
-    if (33 >= i >= 35) {
-        chk += 2;
-    }
-    v_len = v.length();
-// END
-
-// Here we add just enough characters
-// to snatch our program from the jaws
-// of defeat, and still get the number
-// we need to bring it back.
-    switch(chk) {
-        case 1:
-        v.insert(v.begin(),(unsigned char)v_len);
-        v.insert(v.begin(),'$');
-        break;
-        case 2:
-        v.insert(v.begin(),(unsigned char)i);
-        v.insert(v.begin(),';');
-        break;
-        case 3:
-        v.insert(v.begin(),(unsigned char)v_len);
-        v.insert(v.begin(),(unsigned char)(i));
-        v.insert(v.begin(),'@');
-        break;
-    }
-    
-// We are returning `v` which is the formatted
+// We are returning `v` or `w` which is the formatted
 // percentage, and the number of bits taken to
 // get it all in there.
-    return v;
 }
 
 string uncompress(string v)
@@ -342,19 +303,14 @@ int main(int argc, char* argv[])
         {
 
             string tiptum = "";
-            for (int r : c)
+            for (unsigned char r : c)
             {
-                i++;
-                // if (i > 0)
-                {
-                    n.insert(tiptum);
-                    tiptum.clear();
-                }
-                tiptum.push_back(r);
+                b.insert(r);
+                ofo << r;
             }
 
             i = 0;
-            ofo << c;
+            
         }
         cout << n.size() << " ";
     }
