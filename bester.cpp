@@ -74,7 +74,7 @@ string sepFix(uint64_t epiphany)
         while (t - (n * (epic / pow(10,bb))) > 10 && bb-- > 0);
     // record to file, eliminate doubts we have
     // incorrect data
-        if (t - (n * (epic / pow(10,bb))) <= 10 && v.length() + 3 <= 4) {
+        if (t - (n * (epic / pow(10,bb))) <= 10 && v.length() < 5) {
             uint8_t c = t - (n * (epic / pow(10,bb)));
             v.insert(v.begin(), (unsigned char)(c));
             if (v[0] != c)
@@ -85,39 +85,35 @@ string sepFix(uint64_t epiphany)
             v.insert(v.begin(), (unsigned char)('%'));
             return v;
         }
-        else
-        {
+        if (v.length() < w.length() || w.length() == 0)
+            w = v;
+        v.clear();
     // continue if we passed by the `i`th decimal
     // and couldn't find a suitable number
     // SO! We try to get something closer.
-            //cout << ' ' << t - (n * (lng / pow(10,bb)));
-            continue;
-        }
     }
     
 // If we did not find anything, we can just record it here
 // This is the bulkiest part of the compression, and is
 // used as a last resort.
-    if (w.length() == 0) {
-        long double e_ = epiphany;
-        uint64_t epic_ = e_;
-        
-        v.push_back('?');
-        
-        while (epic_ > 0) {
-            v.insert(v.begin(), (unsigned char)(epic_) % 256);
-            epic_ >>= 8;
-        }
-        for (unsigned char c : v) {
-            lng <<= 8;
-            lng += (unsigned int)c;
-        }
-    // output if error in record
-        if (epiphany != lng)
-            cout << ".";
-        return v;
+    long double e_ = epiphany;
+    uint64_t epic_ = e_;
+    
+    v.push_back('?');
+    
+    while (epic_ > 0) {
+        v.insert(v.begin(), (unsigned char)(epic_) % 256);
+        epic_ >>= 8;
     }
-    return w;
+    for (unsigned char c : v) {
+        lng <<= 8;
+        lng += (unsigned int)c;
+    }
+// output if error in log
+    if (epiphany != lng)
+        cout << ".";
+        
+    return v;
     
 // We are returning `v` or `w` which is the formatted
 // percentage, and the number of bits taken to
