@@ -26,6 +26,20 @@ uint64_t end_file_len = 0;
 set<char> b = {};
 const bitset<64> pow64 = -1;
 
+template <class Container>
+void split4(const std::string& str, Container& cont,
+              const std::string& delims = " ")
+{
+    std::size_t current, previous = 0;
+    current = str.find_first_of(delims);
+    while (current != std::string::npos) {
+        cont.push_back(str.substr(previous, current - previous));
+        previous = current + 1;
+        current = str.find_first_of(delims, previous);
+    }
+    cont.push_back(str.substr(previous, current - previous));
+}
+
 // To-do: Please document this. (What is "epiphany"? What is the expected
 // output? Should be documented here, so that we don't need to search the whole
 // file to figure it out).
@@ -100,6 +114,7 @@ string sepFix(uint64_t epiphany)
     uint64_t epic_ = e_;
     
     v.push_back('?');
+    v.push_back('?');
     
     while (epic_ > 0) {
         v.insert(v.begin(), (unsigned char)(epic_) % 256);
@@ -122,15 +137,19 @@ string sepFix(uint64_t epiphany)
 
 string uncompress(string v)
 {
-    int j = 0, i = (int)v.back();
+
+    int dec = v[0];
+    int offset = v[1];
+    
     int64_t x = 0;
-    for (int c : v)
+    
+    for (int c = 3 ; c < v.length() ; c++)
     {
         x <<= 8;
         x += c;
     }
-
-    return pop_off(round(pow64.to_ullong() * (x / pow(10, i + 2))));
+    
+    return pop_off(round(pow64.to_ullong() * (x / pow(10, dec))) + offset);
 }
 
 // Split 64 bits, into 8 bytes
@@ -282,6 +301,7 @@ int main(int argc, char* argv[])
 
     if (0 == strcmp(argv[1], "-c"))
     {
+        ofo << "RXIVE";
         ofo << "[" << std::hex << gs.length() << "]";
         // All of file in segments
         vector<string> t{};
@@ -293,20 +313,6 @@ int main(int argc, char* argv[])
         // on the little of the file at once.
         // Take to making segments
         t = DIFSplitStringByNumber(gs,bytes);
-        /*
-        while ((y * bytes) + bytes < gs.length())
-        {
-            t.push_back(gs.substr((y * bytes) + bytes, bytes));
-            if (t.size() % bytes == 0)
-            {
-                cout << ". " << flush;
-            }
-            y++;
-        }
-        // Get last of the file
-        if (gs.length() > 0)
-            t.push_back(gs.substr(y * bytes, gs.length() - 1));
-        */
         gs.clear();
         // File is loaded
         cout << ".." << flush;
@@ -342,74 +348,73 @@ int main(int argc, char* argv[])
     }
     else if (0 == strcmp(argv[1], "-d"))
     {
-        int bytes = file_len;
-        vector<string> t = {};
-        int y = 0;
-        // Segments are made to make reading the file in
-        // much easier, and faster. We're only concentrating
-        // on the little of the file at once.
-        // Take to making segments
-        int i = 0;
-        string out_size_h = "";
-        do
-        {
-            i++;
-            out_size_h.push_back(gs[i]);
-        } while (gs[i + 1] != ']');
-        cout << out_size_h << " " << flush;
-        end_file_len = strtol(out_size_h.c_str(), NULL, 16);
-        gs.erase(gs.begin(), gs.begin() + i + 2);
-        cout << end_file_len << flush;
-        while ((y * bytes) + bytes < gs.length())
-        {
-            t.push_back(gs.substr((y * bytes) + bytes, bytes));
-            if (t.size() % bytes == 0)
+        while (gs.substr(0,5) == "RXIVE") {
+            gs.erase(gs.begin(),gs.begin()+5);
+            int bytes = file_len;
+            vector<string> t = {};
+            int y = 0;
+            // Segments are made to make reading the file in
+            // much easier, and faster. We're only concentrating
+            // on the little of the file at once.
+            // Take to making segments
+            int i = 0;
+            string out_size_h = "";
+        
+        // Read in original filesize
+            do
             {
-                cout << ". " << flush;
-            }
-            t.push_back(gs);
+                i++;
+                out_size_h.push_back(gs[i]);
+            } while (gs[i + 1] != ']');
+            
+        // Decode file size
+            end_file_len = strtol(out_size_h.c_str(), NULL, 16);
+            gs.erase(gs.begin(), gs.begin() + i + 2);
+            cout << end_file_len << flush;
             gs.clear();
-            y++;
-        }
-        // Get last of the file
-        if (gs.length() > 0)
-            t.push_back(gs.substr(y * bytes, gs.length() - 1));
-        gs.clear();
-        y = 0;
-        string g = "", JJM_spaces = "";
-        bitset<24> buckets = 0;
-        for (string j : t)
-        {
-            for (int h = 0; h < j.length(); h++)
+        // Split file into original segments
+            split4<vector<string>>(gs,t,"XIV#");
+            string g = "", JJM_spaces = "";
+            bitset<24> buckets = 0;
+        
+        // Deconstruct file to decompress
+            for (string j : t)
             {
-                y++;
-                JJM_spaces.push_back((char)j[h]);
-                if ("JJM" == JJM_spaces)
+                for (int h = 0; h < j.length(); h++)
                 {
-                    for (int i = 0; i < 8; i++)
-                        ofo << ' ';
-                    buckets = 0;
-                    JJM_spaces.clear();
-                }
-                else if (JJM_spaces.length() == 4 && j[h + 1] != '[')
-                {
-                    ofo << uncompress(JJM_spaces);
-                    JJM_spaces.clear();
-                }
-                else if (JJM_spaces.length() == 4)
-                {
-                    for (; h < j.length();)
+                    y++;
+                    JJM_spaces.push_back((char)j[h]);
+                // 'JJM' == 8 spaces
+                    if ("JJM" == JJM_spaces)
                     {
-                        JJM_spaces.push_back(j[h]);
-                        h++;
-                        if (j[h - 1] == ']')
-                            break;
+                        for (int i = 0; i < 8; i++)
+                            ofo << ' ';
+                        buckets = 0;
+                        JJM_spaces.clear();
                     }
-                    ofo << uncompress(JJM_spaces);
-                    JJM_spaces.clear();
+                // Compressed data
+                    else if (j.length() > h+2 && j[h+1] != '%')
+                    {
+                        gs.append(uncompress(JJM_spaces));
+                        JJM_spaces.clear();
+                        h++;
+                    }
+                // Uncompressable data
+                    else if (j.length() > h+3 && j.substr(h+1,2) == "??")
+                    {
+                        uint64_t s = 0;
+                        for (unsigned int v : JJM_spaces) {
+                            s <<= 8;
+                            s += v;
+                        }
+                        gs.append(pop_off(s));
+                        JJM_spaces.clear();
+                        h++;
+                    }
                 }
             }
         }
+        ofo << gs;
     }
     cout << " " << b.size() << "b";
     // output last of file
