@@ -43,77 +43,61 @@ string sepFix(uint64_t epiphany)
     uint64_t lng = 0;
     
     for (int i = 25 ; i > 0 ; i--) {
+    // get percent of proximity to 2^64
         epic = t/n * pow(10,i);
+    // have epic in int and double for
+    // bitwise and division
         lng = epic;
         epic = lng;
+    // log percent
         while (lng > 0) {
             v.insert(v.begin(), (unsigned char)(lng) % 256);
             lng >>= 8;
         }
+    // double check log
         for (int c = 0 ; c < v.length() ; c++) {
             lng <<= 8;
             lng += (unsigned int)v[c];
         }
+    // if its wrong, start over
+    // continue statement moves ua along
         if ((long double)lng != epic) {
             v.clear();
             continue;
         }
+    // bb = deepest decimal
         int bb = 15;
         epic = lng;
+    // how close can we get to 0 difference
+    // between actual and logged proximity
+    // percentage
         while (t - (n * (epic / pow(10,bb))) > 10 && bb-- > 0);
-        if (t - (n * (epic / pow(10,bb))) <= 10 && v.length() + 3 <= 5) {
+    // record to file, eliminate doubts we have
+    // incorrect data
+        if (t - (n * (epic / pow(10,bb))) <= 10 && v.length() + 3 <= 4) {
             uint8_t c = t - (n * (epic / pow(10,bb)));
             v.insert(v.begin(), (unsigned char)(c));
             if (v[0] != c)
                 cout << c-(unsigned int)v[0] << flush;
             v.insert(v.begin(), (unsigned char)(bb));
+            if (v[0] != bb)
+                cout << c-(unsigned int)v[0] << flush;
             v.insert(v.begin(), (unsigned char)('%'));
             return v;
         }
         else
         {
-            
+    // continue if we passed by the `i`th decimal
+    // and couldn't find a suitable number
+    // SO! We try to get something closer.
             //cout << ' ' << t - (n * (lng / pow(10,bb)));
             continue;
         }
-        
-        uint64_t lgn = lng;
-        v.clear();
-        int y = 0, z = 0;
-        for (int j = 25 ; j > 0 ; j--) {
-            uint64_t t_ = lng;
-            while (lng > 0) {
-                v.insert(v.begin(), (unsigned char)(lng) % 256);
-                lng >>= 8;
-            }
-            for (unsigned char c : v) {
-                lng <<= 8;
-                lng += (unsigned int)c;
-            }
-            if (t_ != lng) {
-                lng = t_;
-                v.clear();
-                continue;
-            }
-            lng = t - (n * (lgn / pow(10,j)));
-            while (lng > 0) {
-                v.insert(v.begin(), (unsigned char)(lng) % 256);
-                lng >>= 8;
-            }
-        // just taking j now ->* what is i and j?
-        // I have the number of i, I just don't need it :)
-            //cout << j << " " << flush;
-            v.insert(v.begin(), (unsigned char)(j));
-            v.push_back('S');
-            // catch the best we can :)
-            if (w.length() == 0 || w.length() > v.length()) {
-                w = v;
-            }
-            if (w.length() <= 5)
-                return w;
-            v.clear();
-        }
     }
+    
+// If we did not find anything, we can just record it here
+// This is the bulkiest part of the compression, and is
+// used as a last resort.
     if (w.length() == 0) {
         long double e_ = epiphany;
         uint64_t epic_ = e_;
@@ -128,6 +112,7 @@ string sepFix(uint64_t epiphany)
             lng <<= 8;
             lng += (unsigned int)c;
         }
+    // output if error in record
         if (epiphany != lng)
             cout << ".";
         return v;
