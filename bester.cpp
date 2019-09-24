@@ -13,14 +13,16 @@
 #include <ctime>
 #include <bitset>
 #include <string.h>
+#include <iterator>
+#include <regex>
 
 using namespace std;
 
 vector<string> compress(vector<string>);
 string uncompress(string v);
 string pop_off(uint64_t);
-string sepFix(long double epiphany);
-std::vector<std::string> DIFSplitStringByNumber(const std::string & str, int len);
+string compRoutine(long double epiphany);
+std::vector<std::string> DIFSplitStringByNumber(const std::string &str, int len);
 
 uint64_t end_file_len = 0;
 set<char> b = {};
@@ -30,12 +32,13 @@ double file_len = 0;
 // fast template to split up zips into their
 // segments
 template <class Container>
-void split4(const std::string& str, Container& cont,
-              const std::string& delims = " ")
+void split4(const std::string &str, Container &cont,
+            const std::string &delims = " ")
 {
     std::size_t current, previous = 0;
     current = str.find_first_of(delims);
-    while (current != std::string::npos) {
+    while (current != std::string::npos)
+    {
         cont.push_back(str.substr(previous, current - previous));
         previous = current + 1;
         current = str.find_first_of(delims, previous);
@@ -43,99 +46,107 @@ void split4(const std::string& str, Container& cont,
     cont.push_back(str.substr(previous, current - previous));
 }
 
-// To-do: Please document this. (What is "epiphany"? What is the expected
-// output? Should be documented here, so that we don't need to search the whole
-// file to figure it out).
+// Epiphany is a multichar (upto 8 byte) number
+// that was created with a
+// for (int char : ) 
+//      += (int)char;
+//      >>= 8;
 
-// Epiphany is a multichar (upto 8) number
-// that was created with >> 8 and (int)char
-// so we want to bring this number back.
+// loop. so we want to bring this number back.
 
-string sepFix(uint64_t epiphany)
+string compRoutine(uint64_t epiphany)
 {
     string v = "", w = "";
     long double t = epiphany;
     uint64_t n = (long double)(pow64.to_ullong()); /// epic);
-    long double epic = t; // pow64.to_ulong()/n; //abs(round(pow64.to_ullong() * (n)));
+    long double epic = t;                          // pow64.to_ulong()/n; //abs(round(pow64.to_ullong() * (n)));
     uint64_t lng = 0;
-    
-    for (int i = 25 ; i > 0 ; i--) {
-    // get percent of proximity to 2^64
-        epic = t/n * pow(10,i);
-    // have epic in int and double for
-    // bitwise and division
+
+    for (int i = 25; i > 0; i--)
+    {
+        // get percent of proximity to 2^64
+        epic = t / n * pow(10, i);
+        // have epic in int and double for
+        // bitwise and division
         lng = epic;
         epic = lng;
-    // log percent
-        while (lng > 0) {
+        // log percent
+        while (lng > 0)
+        {
             v.insert(v.begin(), (unsigned char)(lng) % 256);
             lng >>= 8;
         }
-    // double check log
-        for (int c = 0 ; c < v.length() ; c++) {
+        // double check log
+        for (int c = 0; c < v.length(); c++)
+        {
             lng <<= 8;
             lng += (unsigned int)v[c];
         }
-    // if its wrong, start over
-    // continue statement moves ua along
-        if ((long double)lng != epic) {
+        // if its wrong, start over
+        // continue statement moves ua along
+        if ((long double)lng != epic)
+        {
             v.clear();
             continue;
         }
-    // bb = deepest decimal
+        // bb = deepest decimal
         int bb = 15;
         epic = lng;
-    // how close can we get to 0 difference
-    // between actual and logged proximity
-    // percentage
-        while (t - (n * (epic / pow(10,bb))) > 10 && bb-- > 0);
-    // record to file, eliminate doubts we have
-    // incorrect data
-        if (t - (n * (epic / pow(10,bb))) <= 10 && v.length() < 5) {
-            uint8_t c = t - (n * (epic / pow(10,bb)));
+        // how close can we get to 0 difference
+        // between actual and logged proximity
+        // percentage
+        while (t - (n * (epic / pow(10, bb))) > 10 && bb-- > 0)
+            ;
+        // record to file, eliminate doubts we have
+        // incorrect data
+        if (t - (n * (epic / pow(10, bb))) <= 10 && v.length() < 5)
+        {
+            uint8_t c = t - (n * (epic / pow(10, bb)));
             v.insert(v.begin(), (unsigned char)(c));
             if (v[0] != c)
-                cout << c-(unsigned int)v[0] << flush;
+                cout << c - (unsigned int)v[0] << flush;
             v.insert(v.begin(), (unsigned char)(bb));
             if (v[0] != bb)
-                cout << c-(unsigned int)v[0] << flush;
+                cout << c - (unsigned int)v[0] << flush;
             v.insert(v.begin(), (unsigned char)('%'));
             return v;
         }
         if (v.length() < w.length() || w.length() == 0)
             w = v;
         v.clear();
-    // continue if we passed by the `i`th decimal
-    // and couldn't find a suitable number
-    // SO! We try to get something closer.
+        // continue if we passed by the `i`th decimal
+        // and couldn't find a suitable number
+        // SO! We try to get something closer.
     }
-    
-// If we did not find anything, we can just record it here
-// This is the bulkiest part of the compression, and is
-// used as a last resort.
+
+    // If we did not find anything, we can just record it here
+    // This is the bulkiest part of the compression, and is
+    // used as a last resort.
     long double e_ = epiphany;
     uint64_t epic_ = e_;
-    
+
     v.push_back('?');
     v.push_back('?');
-    
-    while (epic_ > 0) {
+
+    while (epic_ > 0)
+    {
         v.insert(v.begin(), (unsigned char)(epic_) % 256);
         epic_ >>= 8;
     }
-    for (unsigned char c : v) {
+    for (unsigned char c : v)
+    {
         lng <<= 8;
         lng += (unsigned int)c;
     }
-// output if error in log
+    // output if error in log
     if (epiphany != lng)
         cout << ".";
-        
+
     return v;
-    
-// We are returning `v` or `w` which is the formatted
-// percentage, and the number of bits taken to
-// get it all in there.
+
+    // We are returning `v` or `w` which is the formatted
+    // percentage, and the number of bits taken to
+    // get it all in there.
 }
 
 string uncompress(string v)
@@ -143,15 +154,15 @@ string uncompress(string v)
 
     int dec = v[0];
     int offset = v[1];
-    
+
     int64_t x = 0;
-    
-    for (int c = 3 ; c < v.length() ; c++)
+
+    for (int c = 3; c < v.length(); c++)
     {
         x <<= 8;
-        x += c;
+        x += (unsigned int)v[c];
     }
-    
+
     return pop_off(round(pow64.to_ullong() * (x / pow(10, dec))) + offset);
 }
 
@@ -233,7 +244,7 @@ vector<string> compress(vector<string> t)
             if (inv_total == 0)
                 m += "JJM%";
             else
-                m += sepFix(inv_total);
+                m += compRoutine(inv_total);
 
             inv_total = 0;
 
@@ -250,8 +261,9 @@ vector<string> compress(vector<string> t)
         }
         i++;
     }
-    if (inv_total != 0) {
-        m += sepFix(inv_total);
+    if (inv_total != 0)
+    {
+        m += compRoutine(inv_total);
         s.push_back(m);
         file_len += m.length();
         m.clear();
@@ -261,19 +273,19 @@ vector<string> compress(vector<string> t)
 }
 
 // Quick function to split up file by length
-std::vector<std::string> DIFSplitStringByNumber(const std::string & str, int len)
+std::vector<std::string> DIFSplitStringByNumber(const std::string &str, int len)
 {
     std::vector<std::string> entries;
-    for(std::string::const_iterator it(str.begin()); it != str.end();)
+    for (std::string::const_iterator it(str.begin()); it != str.end();)
     {
-        int nbChar = std::min(len,(int)std::distance(it,str.end()));
-        entries.push_back(std::string(it,it+nbChar));
-        it=it+nbChar;
+        int nbChar = std::min(len, (int)std::distance(it, str.end()));
+        entries.push_back(std::string(it, it + nbChar));
+        it = it + nbChar;
     };
     return entries;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 
     long int zips = 0;
@@ -305,7 +317,7 @@ int main(int argc, char* argv[])
     ifos.str("");
 
     // File length
-    double file_len = gs.length();
+    const double file_len = gs.length();
 
     if (0 == strcmp(argv[1], "-c"))
     {
@@ -318,41 +330,41 @@ int main(int argc, char* argv[])
         // much easier, and faster. We're only concentrating
         // on the little of the file at once.
         // Take to making segments
-        t = DIFSplitStringByNumber(gs,bytes);
+        t = DIFSplitStringByNumber(gs, bytes);
         gs.clear();
         // File is loaded
         cout << ".." << flush;
+        long double file_size = file_len;
         while (zips > 0)
         {
-        // Use compress() to compress
+            // Use compress() to compress
             stringstream f;
-        // record file_len in hex
-            f << "[" << std::hex << file_len << "]";
-            file_len = 0;
-        // Insert zip mark and file size
-            t.insert(t.begin(),f.str());
-            t.insert(t.begin(),"RXIVE");
+            // record file_len in hex
+            f << "[" << std::hex << file_size << "]";
+            // Insert zip mark and file size
             t = compress(t);
-        // draw segment line
+            t.insert(t.begin(), f.str());
+            t.insert(t.begin(), "RXIVE");
+            // draw segment line
             t.push_back("XIV#");
-        // approach 0 zip calls left to do
+            // approach 0 zip calls left to do
             zips--;
-        // Keep percent of original file size
-            long double w = 0;
+            file_size = 0;
+            // total percent of original file size
             for (string i : t)
-                w += i.length();
-            cout << round((w / file_len) * 100) << "% " << flush;
+                file_size += i.length();
+            cout << round((file_size / file_len) * 100) << "% " << flush;
         }
 
-    // Entropy of Compress output
+        // Entropy of Compress output
         set<string> n = {};
         int i = 0;
         for (string c : t)
         {
-        // How many unique characters
-        // are in the output
-        
-        // cousin's name, here for reference :)
+            // How many unique characters
+            // are in the output
+
+            // cousin's name, here for reference :)
             string tiptum = "";
             for (unsigned char r : c)
             {
@@ -361,14 +373,14 @@ int main(int argc, char* argv[])
             }
 
             i = 0;
-            
         }
         cout << n.size() << " ";
     }
     else if (0 == strcmp(argv[1], "-d"))
     {
-        while (gs.substr(0,5) == "RXIVE") {
-            gs.erase(gs.begin(),gs.begin()+5);
+        while (gs.substr(0, 5) == "RXIVE")
+        {
+            gs.erase(gs.begin(), gs.begin() + 5);
             int bytes = file_len;
             vector<string> t = {};
             int y = 0;
@@ -378,62 +390,53 @@ int main(int argc, char* argv[])
             // Take to making segments
             int i = 0;
             string out_size_h = "";
-        
-        // Read in original filesize
+
+            // Read in original filesize
             do
             {
                 i++;
                 out_size_h.push_back(gs[i]);
             } while (gs[i + 1] != ']');
-            
-        // Decode file size
+
+            // Decode file size
             end_file_len = strtol(out_size_h.c_str(), NULL, 16);
             gs.erase(gs.begin(), gs.begin() + i + 2);
             cout << end_file_len << flush;
             gs.clear();
-        // Split file into original segments
-            split4<vector<string>>(gs,t,"XIV#");
+
+            // Split file into original segments
+            split4<vector<string>>(gs, t, "XIV#");
             vector<string> d = {};
+            // split into further segments to easily
+            // give over to uncompress() and pop_off()
             for (string a : t)
             {
-                split4<vector<string>>(a,d,"%");
+                split4<vector<string>>(a, d, "%");
             }
             string g = "", JJM_spaces = "";
-        
-        // Deconstruct file to decompress
-            for (string j : t)
+
+            // Deconstruct file to decompress
+            for (string j : d)
             {
-                for (int h = 0; h < j.length(); h++)
+            
+                if (string::npos != j.find("??"))
                 {
-                    y++;
-                    JJM_spaces.push_back((char)j[h]);
-                // 'JJM' == 8 spaces
-                    if ("JJM" == JJM_spaces && j[h+1] == '%')
-                    {
-                        for (int i = 0; i < 8; i++)
-                            ofo << ' ';
-                        JJM_spaces.clear();
-                    }
-                // Compressed data
-                    else if (j.length() > h+2 && j[h+1] != '%')
-                    {
-                        gs.append(uncompress(JJM_spaces));
-                        JJM_spaces.clear();
-                        h++;
-                    }
-                // Uncompressable data
-                    else if (j.length() > h+3 && j.substr(h+1,2) == "??")
-                    {
-                        uint64_t s = 0;
-                        for (unsigned int v : JJM_spaces) {
-                            s <<= 8;
-                            s += v;
-                        }
-                        gs.append(pop_off(s));
-                        JJM_spaces.clear();
-                        h++;
-                    }
+                    vector<string> hjsplit = {};
+                    string delim = "??";
+                    split4<vector<string>>(j,hjsplit,delim);
+                    j.clear();
+                    regex  const expression("[^??]+");
+                    std::string const text(j);
+                    
+                    std::ptrdiff_t const match_count(std::distance(
+                        std::sregex_iterator(text.begin(), text.end(), expression),
+                        std::sregex_iterator()));
+                    gs += uncompress(hjsplit[0]);
+                    for (int i = 1 ; i < hjsplit.size() ; i++)
+                        gs += pop_off(strtoull(hjsplit[i].c_str(),NULL,256));
                 }
+                else
+                    gs += uncompress(j);
             }
         }
         ofo << gs;
