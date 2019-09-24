@@ -25,7 +25,10 @@ std::vector<std::string> DIFSplitStringByNumber(const std::string & str, int len
 uint64_t end_file_len = 0;
 set<char> b = {};
 const bitset<64> pow64 = -1;
+double file_len = 0;
 
+// fast template to split up zips into their
+// segments
 template <class Container>
 void split4(const std::string& str, Container& cont,
               const std::string& delims = " ")
@@ -210,7 +213,7 @@ vector<string> compress(vector<string> t)
             for (unsigned int a : tv)
             {
                 // Obvious, I think
-                exciting <<= 4;
+                exciting <<= 8;
                 exciting += a;
                 z++;
                 // 8 byte limit
@@ -228,7 +231,7 @@ vector<string> compress(vector<string> t)
 
             int y = 0;
             if (inv_total == 0)
-                m += "JJM";
+                m += "JJM%";
             else
                 m += sepFix(inv_total);
 
@@ -241,18 +244,23 @@ vector<string> compress(vector<string> t)
             if (m.length() > 48000)
             {
                 s.push_back(m);
+                file_len += m.length();
                 m.clear();
             }
         }
         i++;
     }
-    m += sepFix(inv_total);
-    s.push_back(m);
-    m.clear();
+    if (inv_total != 0) {
+        m += sepFix(inv_total);
+        s.push_back(m);
+        file_len += m.length();
+        m.clear();
+    }
 
     return s;
 }
 
+// Quick function to split up file by length
 std::vector<std::string> DIFSplitStringByNumber(const std::string & str, int len)
 {
     std::vector<std::string> entries;
@@ -301,8 +309,6 @@ int main(int argc, char* argv[])
 
     if (0 == strcmp(argv[1], "-c"))
     {
-        ofo << "RXIVE";
-        ofo << "[" << std::hex << gs.length() << "]";
         // All of file in segments
         vector<string> t{};
         int y = 0;
@@ -318,22 +324,35 @@ int main(int argc, char* argv[])
         cout << ".." << flush;
         while (zips > 0)
         {
-            // Use epic() to compress
+        // Use compress() to compress
+            stringstream f;
+        // record file_len in hex
+            f << "[" << std::hex << file_len << "]";
+            file_len = 0;
+        // Insert zip mark and file size
+            t.insert(t.begin(),f.str());
+            t.insert(t.begin(),"RXIVE");
             t = compress(t);
+        // draw segment line
             t.push_back("XIV#");
+        // approach 0 zip calls left to do
             zips--;
+        // Keep percent of original file size
             long double w = 0;
             for (string i : t)
                 w += i.length();
             cout << round((w / file_len) * 100) << "% " << flush;
         }
 
-        // Entropy of Compress output
+    // Entropy of Compress output
         set<string> n = {};
         int i = 0;
         for (string c : t)
         {
-
+        // How many unique characters
+        // are in the output
+        
+        // cousin's name, here for reference :)
             string tiptum = "";
             for (unsigned char r : c)
             {
@@ -374,8 +393,12 @@ int main(int argc, char* argv[])
             gs.clear();
         // Split file into original segments
             split4<vector<string>>(gs,t,"XIV#");
+            vector<string> d = {};
+            for (string a : t)
+            {
+                split4<vector<string>>(a,d,"%");
+            }
             string g = "", JJM_spaces = "";
-            bitset<24> buckets = 0;
         
         // Deconstruct file to decompress
             for (string j : t)
@@ -385,11 +408,10 @@ int main(int argc, char* argv[])
                     y++;
                     JJM_spaces.push_back((char)j[h]);
                 // 'JJM' == 8 spaces
-                    if ("JJM" == JJM_spaces)
+                    if ("JJM" == JJM_spaces && j[h+1] == '%')
                     {
                         for (int i = 0; i < 8; i++)
                             ofo << ' ';
-                        buckets = 0;
                         JJM_spaces.clear();
                     }
                 // Compressed data
