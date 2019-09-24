@@ -1,4 +1,4 @@
-// g++ -o comptest.exe -m64 -Ofast -std=c++17 best.cpp
+// g++ -o comptest.exe -m64 -Ofast -std=c++17 bester.cpp
 
 #include <iostream>
 #include <iomanip>
@@ -13,7 +13,6 @@
 #include <ctime>
 #include <bitset>
 #include <string.h>
-#include <tuple>
 
 using namespace std;
 
@@ -21,6 +20,7 @@ vector<string> compress(vector<string>);
 string uncompress(string v);
 string pop_off(uint64_t);
 string sepFix(long double epiphany);
+std::vector<std::string> DIFSplitStringByNumber(const std::string & str, int len);
 
 uint64_t end_file_len = 0;
 set<char> b = {};
@@ -42,102 +42,94 @@ string sepFix(uint64_t epiphany)
     long double epic = t; // pow64.to_ulong()/n; //abs(round(pow64.to_ullong() * (n)));
     uint64_t lng = 0;
     
-    if (t < 16777216) {
-        long double e_ = epiphany;
-        uint64_t epic_ = e_;// * pow(10,25);
-        while (epic_ > 0) {
-            v.insert(v.begin(), (unsigned char)(epic_) % 256);
-            epic_ >>= 8;
-        }
-        v.push_back('?');
-        /*
-        lng = (t-(n*(epic_ / pow(10,25))));
-        while (lng > 0) {
-            v.insert(v.begin(), (unsigned char)(lng) % 256);
-            lng >>= 8;
-        }
-        //cout << v.length() << " " << e_ << " " << flush;
-        v.push_back('?');
-        */
-        return v;
-    }
     for (int i = 25 ; i > 0 ; i--) {
         epic = t/n * pow(10,i);
         lng = epic;
-        if (lng == 0)
-            continue;
+        epic = lng;
         while (lng > 0) {
             v.insert(v.begin(), (unsigned char)(lng) % 256);
             lng >>= 8;
         }
-        for (unsigned int c : v) {
+        for (int c = 0 ; c < v.length() ; c++) {
             lng <<= 8;
-            lng += c;
+            lng += (unsigned int)v[c];
         }
+        if ((long double)lng != epic) {
+            v.clear();
+            continue;
+        }
+        int bb = 15;
+        epic = lng;
+        while (t - (n * (epic / pow(10,bb))) > 10 && bb-- > 0);
+        if (t - (n * (epic / pow(10,bb))) <= 10 && v.length() + 3 <= 5) {
+            uint8_t c = t - (n * (epic / pow(10,bb)));
+            v.insert(v.begin(), (unsigned char)(c));
+            if (v[0] != c)
+                cout << c-(unsigned int)v[0] << flush;
+            v.insert(v.begin(), (unsigned char)(bb));
+            v.insert(v.begin(), (unsigned char)('%'));
+            return v;
+        }
+        else
+        {
+            
+            //cout << ' ' << t - (n * (lng / pow(10,bb)));
+            continue;
+        }
+        
         uint64_t lgn = lng;
         v.clear();
         int y = 0, z = 0;
         for (int j = 25 ; j > 0 ; j--) {
             uint64_t t_ = lng;
-            if ((t-(n* (lng / pow(10,j)))) > 65536) {
-                while (lng > 0) {
-                    v.insert(v.begin(), (unsigned char)(lng) % 256);
-                    lng >>= 8;
-                }
-                for (unsigned int c : v) {
-                    lng <<= 8;
-                    lng += c;
-                }
-                if (t_ != lng) {
-                //    cout << "?" << flush;
-                    v.clear();
-                    continue;
-                }
-                //else
-                //    cout << "." << flush;
-                lng = (t-(n*(lgn / pow(10,j))));
-                while (lng > 0) {
-                    v.insert(v.begin(), (unsigned char)(lng) % 256);
-                    lng >>= 8;
-                }
-                //cout << v.length() << " " << flush;
-            // just taking j now ->* what is i and j?
-            // I have the number of i, I just don't need it :)
-                v.insert(v.begin(), (unsigned char)(j));
-                if (i != j) {
-                //    v.insert(v.begin(), (unsigned char)(j));
-                //    v.push_back('#');
-                }
-                //else // j == i
-                    v.push_back('S');
-                // catch the best we can :)
-                if (w.length() == 0 || w.length() > v.length()) {
-                    y = i; z = j;
-                    w = v;
-                }
-                if (w.length() <= 4)
-                    return w;
+            while (lng > 0) {
+                v.insert(v.begin(), (unsigned char)(lng) % 256);
+                lng >>= 8;
             }
+            for (unsigned char c : v) {
+                lng <<= 8;
+                lng += (unsigned int)c;
+            }
+            if (t_ != lng) {
+                lng = t_;
+                v.clear();
+                continue;
+            }
+            lng = t - (n * (lgn / pow(10,j)));
+            while (lng > 0) {
+                v.insert(v.begin(), (unsigned char)(lng) % 256);
+                lng >>= 8;
+            }
+        // just taking j now ->* what is i and j?
+        // I have the number of i, I just don't need it :)
+            //cout << j << " " << flush;
+            v.insert(v.begin(), (unsigned char)(j));
+            v.push_back('S');
+            // catch the best we can :)
+            if (w.length() == 0 || w.length() > v.length()) {
+                w = v;
+            }
+            if (w.length() <= 5)
+                return w;
             v.clear();
         }
     }
     if (w.length() == 0) {
         long double e_ = epiphany;
-        uint64_t epic_ = e_;// * pow(10,25);
+        uint64_t epic_ = e_;
+        
+        v.push_back('?');
+        
         while (epic_ > 0) {
             v.insert(v.begin(), (unsigned char)(epic_) % 256);
             epic_ >>= 8;
         }
-        v.push_back('?');
-        /*
-        lng = (t-(n*(epic_ / pow(10,25))));
-        while (lng > 0) {
-            v.insert(v.begin(), (unsigned char)(lng) % 256);
-            lng >>= 8;
+        for (unsigned char c : v) {
+            lng <<= 8;
+            lng += (unsigned int)c;
         }
-        //cout << v.length() << " " << e_ << " " << flush;
-        v.push_back('?');
-        */
+        if (epiphany != lng)
+            cout << ".";
         return v;
     }
     return w;
@@ -246,7 +238,7 @@ vector<string> compress(vector<string> t)
             // & get output entropy inserts
             // entropy is n. How many different
             // chars are in the file.
-            if (m.length() > 8000)
+            if (m.length() > 48000)
             {
                 s.push_back(m);
                 m.clear();
@@ -259,6 +251,18 @@ vector<string> compress(vector<string> t)
     m.clear();
 
     return s;
+}
+
+std::vector<std::string> DIFSplitStringByNumber(const std::string & str, int len)
+{
+    std::vector<std::string> entries;
+    for(std::string::const_iterator it(str.begin()); it != str.end();)
+    {
+        int nbChar = std::min(len,(int)std::distance(it,str.end()));
+        entries.push_back(std::string(it,it+nbChar));
+        it=it+nbChar;
+    };
+    return entries;
 }
 
 int main(int argc, char* argv[])
@@ -302,11 +306,13 @@ int main(int argc, char* argv[])
         vector<string> t{};
         int y = 0;
         // Segment size
-        int bytes = 16000;
+        int bytes = 48000;
         // Segments are made to make reading the file in
         // much easier, and faster. We're only concentrating
         // on the little of the file at once.
         // Take to making segments
+        t = DIFSplitStringByNumber(gs,bytes);
+        /*
         while ((y * bytes) + bytes < gs.length())
         {
             t.push_back(gs.substr((y * bytes) + bytes, bytes));
@@ -319,6 +325,7 @@ int main(int argc, char* argv[])
         // Get last of the file
         if (gs.length() > 0)
             t.push_back(gs.substr(y * bytes, gs.length() - 1));
+        */
         gs.clear();
         // File is loaded
         cout << ".." << flush;
@@ -326,6 +333,7 @@ int main(int argc, char* argv[])
         {
             // Use epic() to compress
             t = compress(t);
+            t.push_back("XIV#");
             zips--;
             long double w = 0;
             for (string i : t)
