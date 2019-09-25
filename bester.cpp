@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
         int y = 0;
         // Segment size
         int bytes = 48000;
-        if (bytes < 48000)
+        if (file_len < bytes)
             bytes = file_len;
         // Segments are made to make reading the file in
         // much easier, and faster. We're only concentrating
@@ -348,7 +348,9 @@ int main(int argc, char *argv[])
             // Insert zip mark and file size
             vect_tbl_of_file = compress(vect_tbl_of_file);
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "]");
-            vect_tbl_of_file.insert(vect_tbl_of_file.begin(), std::to_string(std::stoul(len_tmp, nullptr, 16)));
+            std::stringstream ss;
+            ss << std::hex << std::stoul(len_tmp);
+            vect_tbl_of_file.insert(vect_tbl_of_file.begin(), ss.str());
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "[");
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "RXIVE");
             // draw segment line
