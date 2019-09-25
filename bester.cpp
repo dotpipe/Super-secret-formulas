@@ -164,8 +164,8 @@ string compRoutine(uint64_t epiphany)
 string uncompress(string str_of_ints)
 {
 
-    int dec = str_of_ints[0];
-    int offset = str_of_ints[1];
+    int dec = str_of_ints[1];
+    int offset = str_of_ints[2];
 
     int64_t x = 0;
 
