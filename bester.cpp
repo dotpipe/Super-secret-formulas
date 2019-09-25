@@ -93,8 +93,7 @@ string compRoutine(uint64_t epiphany)
         {
             str_of_ints.clear();
             continue;
-        }
-        
+        } 
         // Done checking input/output
         //////////////////////////
 
@@ -222,7 +221,7 @@ vector<string> compress(vector<string> vect_tbl_of_file)
         string str_of_ints = vect_tbl_of_file[i];
 
         uint64_t epiphany = 0;
-        while (str_of_ints.length() > 0)
+        do
         {
             int_cntr = 0;
 
@@ -230,6 +229,7 @@ vector<string> compress(vector<string> vect_tbl_of_file)
             // value of the sequences as they
             // are read in to the compressor
             uint64_t exciting = 0;
+
 
             // Let's go thru each char, sequencing 8 bytes
             // end to end. We'll
@@ -254,29 +254,28 @@ vector<string> compress(vector<string> vect_tbl_of_file)
             int y = 0;
             if (inv_total == 0)
                 enc_str += "JJM%";
-            else
+            else {
                 enc_str += compRoutine(inv_total);
-
-            inv_total = 0;
+                inv_total = 0;
+            }
 
             // Write to file
             // & get output entropy inserts
             // entropy is n. How many different
             // chars are in the file.
-            /*
+            
             if (enc_str.length() > 48000)
             {
                 s.push_back(enc_str);
                 file_len += enc_str.length();
                 enc_str.clear();
             }
-            */
-        }
+            
+        } while (str_of_ints.length() > 0);
         i++;
     }
-    if (inv_total != 0)
+    if (enc_str.length() > 0)
     {
-        enc_str += compRoutine(inv_total);
         s.push_back(enc_str);
         file_len += enc_str.length();
         enc_str.clear();
