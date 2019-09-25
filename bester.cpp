@@ -89,12 +89,22 @@ string compRoutine(uint64_t epiphany)
             str_of_ints.clear();
             continue;
         }
+        
+        // Done checking input/output
+        //////////////////////////
+        
         // bb = deepest decimal
         int bb = 15;
         epic = lng;
         // how close can we get to 0 difference
         // between actual and logged proximity
-        // percentage
+        // percentage.
+        
+        // When this byte is extracted it will
+        // only be used to induce this formula:
+        // n * (lng / pow(10,bb)) + x
+        // where x is the offset (tmp_total below)
+        // it emplaces the decimal in the right place
         while (total_of_ints - (n * (epic / pow(10, bb))) > 10 && bb-- > 0)
             ;
         // record to file, eliminate doubts we have
@@ -115,7 +125,7 @@ string compRoutine(uint64_t epiphany)
         if (str_of_ints.length() < w.length() || w.length() == 0)
             w = str_of_ints;
         str_of_ints.clear();
-        if (i == 1)
+        if (i == 1 && w.length() > 0)
             return w;
         // continue if we passed by the `i`th decimal
         // and couldn't find a suitable number
