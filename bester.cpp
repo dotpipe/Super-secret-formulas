@@ -84,12 +84,17 @@ string compRoutine(uint64_t epiphany)
         }
         // if its wrong, start over
         // continue statement moves ua along
-        if ((long double)lng != epic)
+        if ((long double)lng != epic && i == 1 && w.length() > 0)
+        {
+            str_of_ints.clear();
+            return w;
+        }
+        else if ((long double)lng != epic)
         {
             str_of_ints.clear();
             continue;
         }
-
+        
         // Done checking input/output
         //////////////////////////
 
@@ -138,7 +143,6 @@ string compRoutine(uint64_t epiphany)
     long double e_ = epiphany;
     uint64_t epic_ = e_;
 
-    str_of_ints += "??";
 
     while (epic_ > 0)
     {
@@ -153,6 +157,9 @@ string compRoutine(uint64_t epiphany)
     // output if error in log
     if (epiphany != lng)
         cout << ".";
+    str_of_ints.insert(str_of_ints.begin(),(0));
+    str_of_ints.insert(str_of_ints.begin(),(0));
+    str_of_ints.insert(0,("??"));
 
     return str_of_ints;
 
@@ -193,19 +200,13 @@ string pop_off(uint64_t recovered_int)
         end_file_len--;
         i--;
     }
-    string x = "";
-    for (; y.length() > 0;)
-    {
-        x.push_back(y.back());
-        y.pop_back();
-    }
-    return x;
+    return y;
 }
 
 vector<string> compress(vector<string> vect_tbl_of_file)
 {
 
-    int i = 0, int_cntr = 0;
+    uint8_t i = 0, int_cntr = 0;
 
     // We're looping through each segment
     // Moving with t[i] (i++ at the bottom)
@@ -262,12 +263,14 @@ vector<string> compress(vector<string> vect_tbl_of_file)
             // & get output entropy inserts
             // entropy is n. How many different
             // chars are in the file.
+            /*
             if (enc_str.length() > 48000)
             {
                 s.push_back(enc_str);
                 file_len += enc_str.length();
                 enc_str.clear();
             }
+            */
         }
         i++;
     }
@@ -435,9 +438,9 @@ int main(int argc, char *argv[])
             // Deconstruct file to decompress
             for (string j : split_of_segments)
             {
-                if (j == "")
-                    continue;
-                if (string::npos != j.find("??"))
+                if (j == "JJM")
+                    file_data_string.append((size_t)8,' ');
+                else if (string::npos != j.find("??"))
                 {
                     vector<string> hj_split = {};
                     string delim = "??";
