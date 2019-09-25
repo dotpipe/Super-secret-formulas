@@ -164,18 +164,18 @@ string compRoutine(uint64_t epiphany)
 string uncompress(string str_of_ints)
 {
 
-    int dec = str_of_ints[1];
-    int offset = str_of_ints[2];
+    int dec = str_of_ints[0];
+    int offset = str_of_ints[1];
 
     int64_t x = 0;
 
-    for (int c = 3; c < str_of_ints.length(); c++)
+    for (int c = 2; c < str_of_ints.length(); c++)
     {
         x <<= 8;
         x += (unsigned int)str_of_ints[c];
     }
 
-    pop_off(round(pow64.to_ullong() * (x / pow(10, dec)) + offset));
+    return pop_off(round(pow64.to_ullong() * (x / pow(10, dec)) + offset));
 }
 
 // Split 64 bits, into 8 bytes
@@ -450,8 +450,16 @@ int main(int argc, char *argv[])
                         std::sregex_iterator(text.begin(), text.end(), expression),
                         std::sregex_iterator()));
                     file_data_string += uncompress(hj_split[0]);
-                    for (int i = 1; i < hj_split.size(); i++)
-                        file_data_string += pop_off(strtoull(hj_split[i].c_str(), NULL, 256));
+                    
+                    for (int i = 1; i < hj_split.size(); i++) {
+                        uint64_t hj_total = 0;
+                        for (unsigned int chr : hj_split[i]) {
+                            hj_total <<= 8;
+                            hj_total += chr;
+                        }
+                        file_data_string += pop_off(hj_total);
+                    }
+                        
                 }
                 else
                     file_data_string += uncompress(j);
