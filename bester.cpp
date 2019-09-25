@@ -49,7 +49,7 @@ void split4(const std::string &str, Container &cont,
 
 // Epiphany is a multichar (upto 8 byte) number
 // that was created with a
-// for (int char : ) 
+// for (int char : )
 //      += (int)char;
 //      >>= 8;
 // loop. so we want to bring this number back.
@@ -223,11 +223,11 @@ vector<string> compress(vector<string> vect_tbl_of_file)
             // use this to compress with.
             for (unsigned int a : str_of_ints)
             {
-            // Obvious, I think
+                // Obvious, I think
                 inv_total <<= 8;
                 inv_total += a;
                 int_cntr++;
-            // 8 byte limit
+                // 8 byte limit
                 if (int_cntr == 8)
                     break;
             }
@@ -340,12 +340,12 @@ int main(int argc, char *argv[])
             // Use compress() to compress
             // record file_len in hex
             vect_tbl_of_file = compress(vect_tbl_of_file);
-            
+
             string len_tmp = to_string(file_size);
             // Insert zip mark and file size
             vect_tbl_of_file = compress(vect_tbl_of_file);
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "]");
-            vect_tbl_of_file.insert(vect_tbl_of_file.begin(), (const char*)stoul(len_tmp.c_str(), NULL, 16));
+            vect_tbl_of_file.insert(vect_tbl_of_file.begin(), std::to_string(std::stoul(len_tmp, nullptr, 16)));
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "[");
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "RXIVE");
             // draw segment line
@@ -421,22 +421,22 @@ int main(int argc, char *argv[])
             // Deconstruct file to decompress
             for (string j : split_of_segments)
             {
-            
+
                 if (string::npos != j.find("??"))
                 {
                     vector<string> hj_split = {};
                     string delim = "??";
-                    split4<vector<string>>(j,hj_split,delim);
+                    split4<vector<string>>(j, hj_split, delim);
                     j.clear();
-                    regex  const expression("[^??]+");
+                    regex const expression("[^??]+");
                     std::string const text(j);
-                    
+
                     std::ptrdiff_t const match_count(std::distance(
                         std::sregex_iterator(text.begin(), text.end(), expression),
                         std::sregex_iterator()));
                     file_data_string += uncompress(hj_split[0]);
-                    for (int i = 1 ; i < hj_split.size() ; i++)
-                        file_data_string += pop_off(strtoull(hj_split[i].c_str(),NULL,256));
+                    for (int i = 1; i < hj_split.size(); i++)
+                        file_data_string += pop_off(strtoull(hj_split[i].c_str(), NULL, 256));
                 }
                 else
                     file_data_string += uncompress(j);
