@@ -111,9 +111,12 @@ string compRoutine(uint64_t epiphany)
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)('%'));
             return str_of_ints;
         }
+        
         if (str_of_ints.length() < w.length() || w.length() == 0)
             w = str_of_ints;
         str_of_ints.clear();
+        if (i == 1)
+            return w;
         // continue if we passed by the `i`th decimal
         // and couldn't find a suitable number
         // SO! We try to get something closer.
