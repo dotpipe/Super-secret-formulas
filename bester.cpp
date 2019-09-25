@@ -107,21 +107,21 @@ string compRoutine(uint64_t epiphany)
         // When this byte is extracted it will
         // only be used to induce this formula:
         // n * (lng / pow(10,bb)) + x
-        // where x is the offset (tmp_total below)
+        // where x is the offset (offset below)
         // it emplaces the decimal in the right place
-        while (total_of_ints - (n * (epic / pow(10, bb))) > 10 && bb-- > 0)
+        while (total_of_ints - round(n * (epic / pow(10, bb))) > 255 && bb-- > 0)
             ;
         // record to file, eliminate doubts we have
         // incorrect data
-        if (total_of_ints - (n * (epic / pow(10, bb))) <= 10 && str_of_ints.length() < 5)
+        if (total_of_ints - round(n * (epic / pow(10, bb))) <= 255 && str_of_ints.length() < 5)
         {
-            uint8_t tmp_total = total_of_ints - (n * (epic / pow(10, bb)));
-            str_of_ints.insert(str_of_ints.begin(), (unsigned char)(tmp_total));
-            if (str_of_ints[0] != tmp_total)
-                cout << tmp_total - (unsigned int)str_of_ints[0] << flush;
+            uint8_t offset = total_of_ints - round(n * (epic / pow(10, bb)));
+            str_of_ints.insert(str_of_ints.begin(), (unsigned char)(offset));
+            if (str_of_ints[0] != offset)
+                cout << offset - (unsigned int)str_of_ints[0] << flush;
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)(bb));
             if (str_of_ints[0] != bb)
-                cout << tmp_total - (unsigned int)str_of_ints[0] << flush;
+                cout << offset - (unsigned int)str_of_ints[0] << flush;
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)('%'));
             return str_of_ints;
         }
@@ -181,7 +181,7 @@ string uncompress(string str_of_ints)
         x += (unsigned int)str_of_ints[c];
     }
 
-    return pop_off(round(pow64.to_ullong() * (x / pow(10, dec)) + offset));
+    return pop_off(round(pow64.to_ullong() * (x / pow(10, dec))) + offset);
 }
 
 // Split 64 bits, into 8 bytes
@@ -461,7 +461,6 @@ int main(int argc, char *argv[])
                         }
                         file_data_string += pop_off(hj_total);
                     }
-                        
                 }
                 else
                     file_data_string += uncompress(j);
