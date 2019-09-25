@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
             std::stringstream ss;
             ss << std::hex << std::stoul(len_tmp);
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), ss.str());
-            vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "[0x");
+            vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "[");
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "RXIVE");
             // draw segment line
             vect_tbl_of_file.push_back("XIV#");
