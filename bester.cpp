@@ -1,4 +1,4 @@
-// g++ -o comptesvect_tbl_of_file.exe -m64 -Ofast -std=c++17 bester.cpp
+// g++ -o comptest.exe -m64 -Ofast -std=c++17 bester.cpp
 
 #include <iostream>
 #include <iomanip>
@@ -15,7 +15,6 @@
 #include <string.h>
 #include <iterator>
 #include <regex>
-#include <stdlib.h>
 
 using namespace std;
 
@@ -37,21 +36,22 @@ void split4(const std::string &str, Container &cont,
             const std::string &delims = " ")
 {
     std::size_t current, previous = 0;
-    current = str.find(delims);
+    current = str.find_first_of(delims);
     while (current != std::string::npos)
     {
         cont.push_back(str.substr(previous, current - previous));
         previous = current + 1;
-        current = str.find(delims, previous);
+        current = str.find_first_of(delims, previous);
     }
     cont.push_back(str.substr(previous, current - previous));
 }
 
 // Epiphany is a multichar (upto 8 byte) number
 // that was created with a
-// for (int char : )
+// for (int char : ) 
 //      += (int)char;
 //      >>= 8;
+
 // loop. so we want to bring this number back.
 
 string compRoutine(uint64_t epiphany)
@@ -65,7 +65,7 @@ string compRoutine(uint64_t epiphany)
     for (int i = 25; i > 0; i--)
     {
         // get percent of proximity to 2^64
-        epic = total_of_ints / n * pow(10, i);
+        epic = total_of_ints / pow64.to_ullong() * pow(10, i);
         // have epic in int and double for
         // bitwise and division
         lng = epic;
@@ -84,12 +84,7 @@ string compRoutine(uint64_t epiphany)
         }
         // if its wrong, start over
         // continue statement moves ua along
-        if ((long double)lng != epic && i == 1 && w.length() > 0)
-        {
-            str_of_ints.clear();
-            return w;
-        }
-        else if ((long double)lng != epic)
+        if ((long double)lng != epic)
         {
             str_of_ints.clear();
             continue;
@@ -113,7 +108,7 @@ string compRoutine(uint64_t epiphany)
             ;
         // record to file, eliminate doubts we have
         // incorrect data
-        if (total_of_ints - round(n * (epic / pow(10, bb))) <= 255 && str_of_ints.length() < 5)
+        if (total_of_ints - round(n * (epic / pow(10, bb))) <= 255 && str_of_ints.length() < 4)
         {
             uint8_t offset = total_of_ints - round(n * (epic / pow(10, bb)));
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)(offset));
@@ -205,83 +200,81 @@ string pop_off(uint64_t recovered_int)
 vector<string> compress(vector<string> vect_tbl_of_file)
 {
 
-    uint8_t i = 0, int_cntr = 0;
+	int i = 0, int_cntr = 0;
 
-    // We're looping through each segment
-    // Moving with t[i] (i++ at the bottom)
-    int j = 0;
-    uint64_t inv_total = 0;
-    string enc_str = "";
-    // This is to make the loop for
-    // continuous zipping; opt @cmdline argv[3]
-    vector<string> s = {};
-    while (vect_tbl_of_file.size() > i)
-    {
-        // tv is the current segment
-        string str_of_ints = vect_tbl_of_file[i];
+	// We're looping through each segment
+	// Moving with t[i] (i++ at the bottom)
+	int j = 0;
+	uint64_t inv_total = 0;
+	string enc_str = "";
+	// This is to make the loop for
+	// continuous zipping; opt @cmdline argv[3]
+	vector<string> s = {};
+	while (vect_tbl_of_file.size() > i)
+	{
+		// tv is the current segment
+		string str_of_ints = vect_tbl_of_file[i];
 
-        uint64_t epiphany = 0;
-        do
-        {
-            int_cntr = 0;
+		uint64_t epiphany = 0;
+		while (str_of_ints.length() > 0)
+		{
+			int_cntr = 0;
 
-            // exciting is the 64 bit 8 byte
-            // value of the sequences as they
-            // are read in to the compressor
-            uint64_t exciting = 0;
+			// exciting is the 64 bit 8 byte
+			// value of the sequences as they
+			// are read in to the compressor
+			uint64_t exciting = 0;
 
+			// Let's go thru each char, sequencing 8 bytes
+			// end to end. We'll
+			// use this to compress with.
+			for (unsigned int a : str_of_ints)
+			{
+				// Obvious, I think
+				inv_total <<= 8;
+				inv_total += a;
+				int_cntr++;
+				// 8 byte limit
+				if (int_cntr == 8)
+					break;
+			}
 
-            // Let's go thru each char, sequencing 8 bytes
-            // end to end. We'll
-            // use this to compress with.
-            for (unsigned int a : str_of_ints)
-            {
-                // Obvious, I think
-                inv_total <<= 8;
-                inv_total += a;
-                int_cntr++;
-                // 8 byte limit
-                if (int_cntr == 8)
-                    break;
-            }
+			// Shed the last ? bytes substr(?,->)
+			if (int_cntr < str_of_ints.length())
+				str_of_ints = str_of_ints.substr(int_cntr, str_of_ints.length() - 1);
+			else
+				str_of_ints.clear();
 
-            // Shed the last ? bytes substr(?,->)
-            if (int_cntr < str_of_ints.length())
-                str_of_ints = str_of_ints.substr(int_cntr, str_of_ints.length() - 1);
-            else
-                str_of_ints.clear();
+			int y = 0;
+			if (inv_total == 0)
+				enc_str += "JJM%";
+			else
+				enc_str += compRoutine(inv_total);
 
-            int y = 0;
-            if (inv_total == 0)
-                enc_str += "JJM%";
-            else {
-                enc_str += compRoutine(inv_total);
-                inv_total = 0;
-            }
+			inv_total = 0;
 
-            // Write to file
-            // & get output entropy inserts
-            // entropy is n. How many different
-            // chars are in the file.
-            
-            if (enc_str.length() > 48000)
-            {
-                s.push_back(enc_str);
-                file_len += enc_str.length();
-                enc_str.clear();
-            }
-            
-        } while (str_of_ints.length() > 0);
-        i++;
-    }
-    if (enc_str.length() > 0)
-    {
-        s.push_back(enc_str);
-        file_len += enc_str.length();
-        enc_str.clear();
-    }
+			// Write to file
+			// & get output entropy inserts
+			// entropy is n. How many different
+			// chars are in the file.
+			if (enc_str.length() > 48000)
+			{
+				s.push_back(enc_str);
+				file_len += enc_str.length();
+				enc_str.clear();
+			}
+		}
+		i++;
+	}
+	if (inv_total != 0)
+	{
+		enc_str += compRoutine(inv_total);
+		s.push_back(enc_str);
+		file_len += enc_str.length();
+		enc_str.clear();
+	}
 
-    return s;
+	return s;
 }
 
 // Quick function to split up file by length
@@ -296,6 +289,7 @@ std::vector<std::string> DIFSplitStringByNumber(const std::string &str, int len)
     };
     return entries;
 }
+
 
 int main(int argc, char *argv[])
 {
@@ -376,7 +370,7 @@ int main(int argc, char *argv[])
         }
 
         // Entropy of Compress output
-        set<string> unique_chars = {};
+        set<unsigned char> unique_chars = {};
         int i = 0;
         for (string c : vect_tbl_of_file)
         {
@@ -387,7 +381,7 @@ int main(int argc, char *argv[])
             string tiptum = "";
             for (unsigned char r : c)
             {
-                b.insert(r);
+                unique_chars.insert(r);
                 ofo << r;
             }
 
@@ -438,13 +432,12 @@ int main(int argc, char *argv[])
             for (string j : split_of_segments)
             {
                 if (j == "JJM")
-                    file_data_string.append((size_t)8,' ');
+                    file_data_string.append("        ");
                 else if (string::npos != j.find("??"))
                 {
                     vector<string> hj_split = {};
                     string delim = "??";
                     split4<vector<string>>(j, hj_split, delim);
-                    j.clear();
                     regex const expression("[^??]+");
                     std::string const text(j);
 
@@ -468,7 +461,6 @@ int main(int argc, char *argv[])
         }
         ofo << file_data_string;
     }
-    cout << " " << b.size() << "b";
     // output last of file
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
