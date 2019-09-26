@@ -58,82 +58,98 @@ string compRoutine(uint64_t epiphany)
 {
     string str_of_ints = "", w = "";
     long double total_of_ints = epiphany;
-    uint64_t n = (long double)(pow64.to_ullong());
+    const uint64_t n = (pow64.to_ullong());
     long double epic = total_of_ints;
     uint64_t lng = 0;
-
-    for (int i = 10; i > 0; i--)
+    uint64_t offset = 0;
+    uint8_t pows = 0;
+    int bb = 15;
+    for (int i = 45; i > 0; i--)
     {
+        str_of_ints.clear();
         // get percent of proximity to 2^64
-        epic = total_of_ints / pow64.to_ullong() * pow(10, i);
+        epic = (total_of_ints / n);
+        epic = epic * pow(10,i);
+        //if (0 > ((round(epic) / pow(10,i) * n)) - n)
+        //    continue;
         // have epic in int and double for
         // bitwise and division
+        epic = round(epic);
         lng = epic;
-        epic = lng;
         // log percent
+        if (lng == 0)
+            continue;
         while (lng > 0)
         {
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)(lng) % 256);
             lng >>= 8;
         }
+        
+        lng = 0;
         // double check log
         for (int c = 0; c < str_of_ints.length(); c++)
         {
             lng <<= 8;
-            lng += (unsigned int)str_of_ints[c];
+            lng += (unsigned int)str_of_ints[c]%256;
         }
+        
         // if its wrong, start over
         // continue statement moves ua along
-        if ((long double)lng != epic)
+        if (round(epic) == 0 || lng != round(epic))
         {
             str_of_ints.clear();
-            continue;
+           continue;
         }
+        
         // Done checking input/output
         //////////////////////////
 
         // bb = deepest decimal
-        int bb = 15;
-        epic = lng;
+        //epic = lng;
         // how close can we get to 0 difference
         // between actual and logged proximity
         // percentage.
-
+        bb = 45;
         // When this byte is extracted it will
         // only be used to induce this formula:
         // n * (lng / pow(10,bb)) + x
         // where x is the offset (offset below)
         // it emplaces the decimal in the right place
-        while (total_of_ints - round(n * (epic / pow(10, bb))) > 255 && bb-- > 0)
-            ;
+        while (n - round(n * (lng / pow(10, bb))) > 230 && bb > 0)
+            bb--;
         
         // record to file, eliminate doubts we have
         // incorrect data
-        if (total_of_ints - round(n * (epic / pow(10, bb))) <= 255 && str_of_ints.length() < 3)
+        uint64_t offset = round(n * (round(lng) / round(pow(10, bb)))) - n;
+        //if (offset <= 230 && str_of_ints.length() + 1 < 4)
         {
-            uint8_t offset = total_of_ints - round(n * (epic / pow(10, bb)));
-            str_of_ints.insert(str_of_ints.begin(), (unsigned char)(offset));
-            if (str_of_ints[0] != offset)
-                cout << offset - (unsigned int)str_of_ints[0] << flush;
+        //    cout << offset << endl << flush;
+            while (offset > 0) {
+                str_of_ints.insert(str_of_ints.begin(), (unsigned char)(offset)%256);
+                offset >>= 8;
+            }
+            //str_of_ints.insert(str_of_ints.begin(), (unsigned char)(offset));
+            //if (str_of_ints[0] != offset)
+            //    cout << offset - (unsigned int)str_of_ints[0] << flush;
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)(bb));
-            if (str_of_ints[0] != bb)
-                cout << offset - (unsigned int)str_of_ints[0] << flush;
+            if (str_of_ints[0]%256 != bb)
+                cout << offset - (unsigned int)str_of_ints[0]%256 << flush;
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)('%'));
-            return str_of_ints;
         }
+        /*
         else {
-            uint32_t offset = total_of_ints - round(n * (epic / pow(10, bb)));
-            str_of_ints.insert(str_of_ints.begin(), (unsigned char)('$'));
-            str_of_ints.insert(str_of_ints.begin(), (unsigned char)('$'));
             while (offset > 0) {
                 str_of_ints.insert(str_of_ints.begin(), (unsigned char)(offset));
                 offset >>= 8;
             }
+            str_of_ints.insert(str_of_ints.begin(), (unsigned char)('$'));
+            str_of_ints.insert(str_of_ints.begin(), (unsigned char)('$'));
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)(bb));
             if (str_of_ints[0] != bb)
                 cout << offset - (unsigned int)str_of_ints[0] << flush;
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)('%'));
-        }
+            pows = 0;
+        }*/
         if (str_of_ints.length() < w.length() || w.length() == 0)
             w = str_of_ints;
         str_of_ints.clear();
@@ -188,7 +204,7 @@ string uncompress(string str_of_ints)
         x += (unsigned int)str_of_ints[c];
     }
 
-    return pop_off(round(pow64.to_ullong() * (x / pow(10, dec))) + offset);
+    return pop_off(round(pow64.to_ullong() * (x / pow(10, dec)) + offset));
 }
 
 // Split 64 bits, into 8 bytes
@@ -200,9 +216,9 @@ string pop_off(uint64_t recovered_int)
 
     while (i > 0 && end_file_len > 0)
     {
-        bitset<8> a = recovered_int;
+        uint64_t a = recovered_int;
         recovered_int >>= 8;
-        y.push_back((char)a.to_ulong());
+        y.insert(y.begin(),(char)a%256);
         end_file_len--;
         i--;
     }
@@ -280,7 +296,6 @@ vector<string> compress(vector<string> vect_tbl_of_file)
     }
     if (enc_str.length() != 0)
     {
-        enc_str += compRoutine(inv_total);
         s.push_back(enc_str);
         file_len += enc_str.length();
         enc_str.clear();
@@ -362,7 +377,6 @@ int main(int argc, char *argv[])
 
             string len_tmp = to_string(file_size);
             // Insert zip mark and file size
-            vect_tbl_of_file = compress(vect_tbl_of_file);
             std::stringstream ss;
             ss << "RXIVE[" << std::hex << std::stoul(len_tmp) << "]";
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), ss.str());
@@ -387,12 +401,11 @@ int main(int argc, char *argv[])
 
             // cousin's name, here for reference :)
             string tiptum = "";
-            for (unsigned char r : c)
+            for (unsigned int r : c)
             {
                 unique_chars.insert(r);
-                ofo << r;
+                ofo << (char)(r);
             }
-
             i = 0;
         }
         cout << unique_chars.size() << " ";
