@@ -106,6 +106,7 @@ string compRoutine(uint64_t epiphany)
         // it emplaces the decimal in the right place
         while (total_of_ints - round(n * (epic / pow(10, bb))) > 255 && bb-- > 0)
             ;
+        
         // record to file, eliminate doubts we have
         // incorrect data
         if (total_of_ints - round(n * (epic / pow(10, bb))) <= 255 && str_of_ints.length() < 3)
@@ -120,7 +121,19 @@ string compRoutine(uint64_t epiphany)
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)('%'));
             return str_of_ints;
         }
-
+        else {
+            uint32_t offset = total_of_ints - round(n * (epic / pow(10, bb)));
+            str_of_ints.insert(str_of_ints.begin(), (unsigned char)('$'));
+            str_of_ints.insert(str_of_ints.begin(), (unsigned char)('$'));
+            while (offset > 0) {
+                str_of_ints.insert(str_of_ints.begin(), (unsigned char)(offset));
+                offset >>= 8;
+            }
+            str_of_ints.insert(str_of_ints.begin(), (unsigned char)(bb));
+            if (str_of_ints[0] != bb)
+                cout << offset - (unsigned int)str_of_ints[0] << flush;
+            str_of_ints.insert(str_of_ints.begin(), (unsigned char)('%'));
+        }
         if (str_of_ints.length() < w.length() || w.length() == 0)
             w = str_of_ints;
         str_of_ints.clear();
