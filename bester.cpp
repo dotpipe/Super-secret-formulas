@@ -266,7 +266,7 @@ vector<string> compress(vector<string> vect_tbl_of_file)
 		}
 		i++;
 	}
-	if (inv_total != 0)
+	if (enc_str.length() != 0)
 	{
 		enc_str += compRoutine(inv_total);
 		s.push_back(enc_str);
@@ -352,12 +352,9 @@ int main(int argc, char *argv[])
             string len_tmp = to_string(file_size);
             // Insert zip mark and file size
             vect_tbl_of_file = compress(vect_tbl_of_file);
-            vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "]");
             std::stringstream ss;
-            ss << std::hex << std::stoul(len_tmp);
+            ss << "RXIVE[" << std::hex << std::stoul(len_tmp) << "]";
             vect_tbl_of_file.insert(vect_tbl_of_file.begin(), ss.str());
-            vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "[");
-            vect_tbl_of_file.insert(vect_tbl_of_file.begin(), "RXIVE");
             // draw segment line
             vect_tbl_of_file.push_back("XIV#");
             // approach 0 zip calls left to do
