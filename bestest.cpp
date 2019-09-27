@@ -130,7 +130,7 @@ string compRoutine(uint64_t epiphany)
         uint16_t offset = (round(lng) / pow(10,bb) * n) - total_of_ints;
         //if (offset == 0 && str_of_ints.length() + 1 < 4)
         {
-            cout << offset << endl << flush;
+            //cout << offset << endl << flush;
             str_of_ints.insert(str_of_ints.begin(), '@');
             while (offset > 0)
             {
@@ -140,7 +140,7 @@ string compRoutine(uint64_t epiphany)
             //if (str_of_ints[0] != offset)
             //    cout << offset - (unsigned int)str_of_ints[0] << flush;
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)(bb-1));
-            if (str_of_ints[0] % 256 != bb)
+            if (str_of_ints[0] % 256 != bb-1)
                 cout << (unsigned int)str_of_ints[0] % 256 << flush;
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)('%'));
         }
