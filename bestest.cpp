@@ -66,7 +66,7 @@ string compRoutine(uint64_t epiphany)
     uint8_t pows = 0;
     int fbb = 0;
     int i = 1;
-    while (++i < 10)
+    while (++i < 20)
     {
         str_of_ints.clear();
         // get percent of proximity to 2^64
@@ -78,7 +78,7 @@ string compRoutine(uint64_t epiphany)
         // bitwise and division
         epic = round(epic);
         lng = epic;
-        if (to_string(lng).length() < 4)
+        if (to_string(lng).length() < 3)
             continue;
         if (250 < ((round(lng) / pow(10,i) * n)) - total_of_ints)
             continue;
@@ -166,22 +166,7 @@ string compRoutine(uint64_t epiphany)
     // used as a last resorvect_tbl_of_file.
     long double e_ = epiphany;
     uint64_t epic_ = e_;
-
-    while (epic_ > 0)
-    {
-        str_of_ints.insert(str_of_ints.begin(), (unsigned char)(epic_) % 256);
-        epic_ >>= 8;
-    }
-    for (unsigned char c : str_of_ints)
-    {
-        lng <<= 8;
-        lng += (unsigned int)c;
-    }
-    // output if error in log
-    if (epiphany != lng)
-        cout << ".";
-    str_of_ints.insert(str_of_ints.begin(), (0));
-    str_of_ints.insert(str_of_ints.begin(), (0));
+    str_of_ints = to_string(epic_);
     str_of_ints.insert(0, ("??"));
 
     return str_of_ints;
