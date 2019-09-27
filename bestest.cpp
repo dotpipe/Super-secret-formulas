@@ -20,7 +20,7 @@ using namespace std;
 
 vector<string> compress(vector<string>);
 string uncompress(string v);
-string pop_off(uint64_t);
+string pop_off(long double);
 string compRoutine(long double epiphany);
 std::vector<std::string> DIFSplitStringByNumber(const std::string &str, int len);
 string decompBridge(string str_of_ints);
@@ -29,7 +29,7 @@ uint64_t end_file_len = 0;
 set<char> b = {};
 const bitset<64> pow64 = -1;
 double file_len = 0;
-
+long double dbg_total = 0;
 // fast template to split up zips into their
 // segments
 template <class Container>
@@ -64,19 +64,23 @@ string compRoutine(uint64_t epiphany)
     uint64_t lng = 0;
     uint64_t offset = 0;
     uint8_t pows = 0;
-    int bb = 15;
-    for (int i = 45; i > 0; i--)
+    int fbb = 0;
+    int i = 1;
+    while (++i < 10)
     {
         str_of_ints.clear();
         // get percent of proximity to 2^64
         epic = (total_of_ints / n);
-        epic = epic * pow(10, i);
-        //if (0 > ((round(epic) / pow(10,i) * n)) - n)
+        epic = epic * pow(10, i-1);
+        //if (250 < ((round(epic) / pow(10,i) * n)) - total_of_ints)
         //    continue;
         // have epic in int and double for
         // bitwise and division
         epic = round(epic);
         lng = epic;
+        
+        if (250 < ((round(lng) / pow(10,i) * n)) - total_of_ints)
+            continue;
         // log percent
         if (lng == 0)
             continue;
@@ -93,7 +97,9 @@ string compRoutine(uint64_t epiphany)
             lng <<= 8;
             lng += (unsigned int)str_of_ints[c] % 256;
         }
-
+        
+        dbg_total = lng;
+        
         // if its wrong, start over
         // continue statement moves ua along
         if (round(epic) == 0 || lng != round(epic))
@@ -110,22 +116,21 @@ string compRoutine(uint64_t epiphany)
         // how close can we get to 0 difference
         // between actual and logged proximity
         // percentage.
-        bb = 45;
+        int bb = i;
         // When this byte is extracted it will
         // only be used to induce this formula:
         // n * (lng / pow(10,bb)) + x
         // where x is the offset (offset below)
         // it emplaces the decimal in the right place
-        while (n - round(n * (lng / pow(10, bb))) > 230 && bb > 0)
+        while (abs((round(lng) / pow(10,bb) * n) - total_of_ints) > 250 && bb > 0)
             bb--;
-
+        bb = i;
         // record to file, eliminate doubts we have
         // incorrect data
-        uint64_t offset = round(n * (round(lng) / round(pow(10, bb))));
-        if (offset != && str_of_ints.length() + 1 < 4)
+        uint16_t offset = (round(lng) / pow(10,bb) * n) - total_of_ints;
+        //if (offset == 0 && str_of_ints.length() + 1 < 4)
         {
-
-            //    cout << offset << endl << flush;
+            cout << offset << endl << flush;
             str_of_ints.insert(str_of_ints.begin(), '@');
             while (offset > 0)
             {
@@ -134,25 +139,27 @@ string compRoutine(uint64_t epiphany)
             }
             //if (str_of_ints[0] != offset)
             //    cout << offset - (unsigned int)str_of_ints[0] << flush;
-            str_of_ints.insert(str_of_ints.begin(), (unsigned char)(bb));
+            str_of_ints.insert(str_of_ints.begin(), (unsigned char)(bb-1));
             if (str_of_ints[0] % 256 != bb)
-                cout << offset - (unsigned int)str_of_ints[0] % 256 << flush;
+                cout << (unsigned int)str_of_ints[0] % 256 << flush;
             str_of_ints.insert(str_of_ints.begin(), (unsigned char)('%'));
-            if (str_of_ints.length() < w.length() || w.length() == 0)
-                w = str_of_ints;
-            str_of_ints.clear();
         }
-        if (i == 1 && w.length() > 0)
-        {
-            decompBridge(w);
-            return w;
-        }
+        
+        if (str_of_ints.length() < w.length() || w.length() == 0)
+            w = str_of_ints;
+        str_of_ints.clear();
         
         // continue if we passed by the `i`th decimal
         // and couldn't find a suitable number
         // SO! We try to get something closer.
     }
-
+    
+    if (w.length() > 0)
+    {
+        //cout << w << " ";
+        decompBridge(w);
+        return w;
+    }
     // If we did not find anything, we can just record it here
     // This is the bulkiest part of the compression, and is
     // used as a last resorvect_tbl_of_file.
@@ -187,57 +194,67 @@ string decompBridge(string str_of_ints)
 {
 
     int dec = str_of_ints[1];
-    int offset = 0;
-    uint64_t x = 0;
+    int64_t offset = 0;
+    int64_t x = 0;
 
-    uint64_t c = 0;
-    for (c = 2; '@' != str_of_ints[c]; c++)
+    uint64_t d = 2;
+    for (int c = 2; '@' != str_of_ints[c]; c++)
     {
         offset <<= 8;
         offset += (unsigned int)str_of_ints[c] % 256;
+        d++;
     }
-
-    for (int c = c + 1; c < str_of_ints.length(); c++)
+    d++;
+    for (int c = d; c < str_of_ints.length(); c++)
     {
         x <<= 8;
         x += (unsigned int)str_of_ints[c] % 256;
     }
-
-        return pop_off(round(pow64.to_ullong() * (x / pow(10, dec)) - offset));
+    long double xb = abs(pow64.to_ullong() * (round(x) / pow(10,dec)) - offset);
+    return pop_off(xb);
 }
 
 string uncompress(string str_of_ints)
 {
 
     int dec = str_of_ints[0];
-    int offset = str_of_ints[1];
-
+    int offset = 0;
     int64_t x = 0;
 
-    for (int c = 2; c < str_of_ints.length(); c++)
+    uint64_t d = 1;
+    for (int c = 1; '@' != str_of_ints[c]; c++)
+    {
+        offset <<= 8;
+        offset += (unsigned int)str_of_ints[c] % 256;
+        d = c; 
+    }
+    d++;
+    for (int c = d; c < str_of_ints.length(); c++)
     {
         x <<= 8;
         x += (unsigned int)str_of_ints[c] % 256;
     }
 
-    return pop_off(round(pow64.to_ullong() * (x / pow(10, dec)) - offset));
+    return pop_off(round(pow64.to_ullong() / ((round(x) / pow(10, dec))) - offset));
 }
 
 // Split 64 bits, into 8 bytes
 // from uncompress()
-string pop_off(uint64_t recovered_int)
+string pop_off(long double input)
 {
     string y = "";
     int i = 8;
-
+    uint64_t recovered_int = input;
+    //cout << recovered_int << " " << flush;
     while (i > 0 && end_file_len > 0)
     {
-        uint64_t a = recovered_int;
+        uint8_t a = recovered_int;
         recovered_int >>= 8;
-        y.insert(y.begin(), (char)a % 256);
+        y.push_back((char)a % 256);
         end_file_len--;
         i--;
     }
+    //cout << y << flush;
     return y;
 }
 
@@ -291,7 +308,7 @@ vector<string> compress(vector<string> vect_tbl_of_file)
 
             int y = 0;
             if (inv_total == 0)
-                enc_str += "JJM%";
+                enc_str += "%JJM";
             else
                 enc_str += compRoutine(inv_total);
 
@@ -385,6 +402,7 @@ int main(int argc, char *argv[])
         // File is loaded
         cout << ".." << flush;
         long double file_size = file_len;
+        end_file_len = file_len;
         while (zips > 0)
         {
             // Use compress() to compress
@@ -420,7 +438,7 @@ int main(int argc, char *argv[])
             for (unsigned int r : c)
             {
                 unique_chars.insert(r);
-                ofo << (char)(r);
+                ofo << (char)(r)%256;
             }
             i = 0;
         }
@@ -438,7 +456,7 @@ int main(int argc, char *argv[])
             // much easier, and faster. We're only concentrating
             // on the little of the file at once.
             // Take to making segments
-            int i = 0;
+            int i = 1;
             string out_size_h = "";
 
             // Read in original filesize
@@ -446,7 +464,7 @@ int main(int argc, char *argv[])
             {
                 i++;
                 out_size_h.push_back(file_data_string[i]);
-            } while (file_data_string[i + 1] != ']');
+            } while (file_data_string[i] != ']');
 
             // Decode file size
             end_file_len = strtol(out_size_h.c_str(), NULL, 16);
