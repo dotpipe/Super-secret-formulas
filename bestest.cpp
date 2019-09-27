@@ -78,7 +78,8 @@ string compRoutine(uint64_t epiphany)
         // bitwise and division
         epic = round(epic);
         lng = epic;
-        
+        if (to_string(lng).length() < 4)
+            continue;
         if (250 < ((round(lng) / pow(10,i) * n)) - total_of_ints)
             continue;
         // log percent
@@ -435,10 +436,10 @@ int main(int argc, char *argv[])
 
             // cousin's name, here for reference :)
             string tiptum = "";
-            for (unsigned int r : c)
+            for (unsigned char r : c)
             {
                 unique_chars.insert(r);
-                ofo << (char)(r)%256;
+                ofo << (r);
             }
             i = 0;
         }
